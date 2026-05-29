@@ -42,5 +42,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders');
     Route::post('/admin/orders/{id}/confirm', [AdminController::class, 'confirmPayment'])->name('admin.confirm');
     Route::post('/admin/orders/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.status');
+    Route::get('/admin/products', [\App\Http\Controllers\Admin\ProductController::class, 'index'])->name('admin.products.index');
+    Route::get('/admin/products/create', [\App\Http\Controllers\Admin\ProductController::class, 'create'])->name('admin.products.create');
+    Route::post('/admin/products', [\App\Http\Controllers\Admin\ProductController::class, 'store'])->name('admin.products.store');
+    Route::delete('/admin/products/{id}', [\App\Http\Controllers\Admin\ProductController::class, 'destroy'])->name('admin.products.destroy');
+    Route::get('/admin/brands', [AdminController::class, 'brands'])->name('admin.brands');
+    Route::post('/admin/brands', [AdminController::class, 'storeBrand'])->name('admin.brands.store');
+    Route::delete('/admin/brands/{id}', [AdminController::class, 'destroyBrand'])->name('admin.brands.destroy');
 });
+
 require __DIR__.'/auth.php';
