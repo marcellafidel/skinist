@@ -69,4 +69,31 @@ class AdminController extends Controller
         \App\Models\Brand::findOrFail($id)->delete();
         return back()->with('success', 'Brand berhasil dihapus!');
     }
+
+    public function categories()
+    {
+        $this->checkAdmin();
+        $categories = \App\Models\Category::all();
+        return view('admin.categories', compact('categories'));
+    }
+
+    public function storeCategory(Request $request)
+    {
+        $this->checkAdmin();
+        $request->validate([
+            'name' => 'required|string|unique:categories,name',
+        ]);
+        \App\Models\Category::create([
+            'name' => $request->name,
+            'slug' => Str::slug($request->name),
+        ]);
+        return back()->with('success', 'Kategori berhasil ditambahkan!');
+    }
+
+    public function destroyCategory($id)
+    {
+        $this->checkAdmin();
+        \App\Models\Category::findOrFail($id)->delete();
+        return back()->with('success', 'Kategori berhasil dihapus!');
+    }
 }
