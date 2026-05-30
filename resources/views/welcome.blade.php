@@ -86,11 +86,24 @@
         </div>
 
         {{-- CHOOSE YOUR FAVS --}}
-        <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-gray-700">CHOOSE YOUR FAVS</h2>
-            <div class="flex justify-center gap-4 mt-2">
-                <a href="{{ route('best.seller') }}" class="text-sky-400 font-semibold border-b-2 border-sky-400 pb-1">best seller</a>
-                <a href="{{ route('new.arrival') }}" class="text-gray-400 hover:text-sky-400">new arrival</a>
+        <div class="mb-8">
+            <div class="text-center mb-2">
+                <h2 class="text-2xl font-bold text-gray-700">CHOOSE YOUR FAVS</h2>
+                <div class="flex justify-center gap-4 mt-2">
+                    <a href="{{ route('best.seller') }}" class="text-sky-400 font-semibold border-b-2 border-sky-400 pb-1">best seller</a>
+                    <a href="{{ route('new.arrival') }}" class="text-gray-400 hover:text-sky-400">new arrival</a>
+                </div>
+            </div>
+            {{-- SORTING --}}
+            <div class="flex justify-end items-center gap-2 mt-2">
+                <span class="text-sm text-gray-400">Urutkan:</span>
+                <select onchange="window.location.href='/?sort='+this.value"
+                    class="border border-sky-200 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300 bg-white">
+                    <option value="latest" {{ ($sort ?? 'latest') === 'latest' ? 'selected' : '' }}>Terbaru</option>
+                    <option value="price_low" {{ ($sort ?? '') === 'price_low' ? 'selected' : '' }}>Harga Terendah</option>
+                    <option value="price_high" {{ ($sort ?? '') === 'price_high' ? 'selected' : '' }}>Harga Tertinggi</option>
+                    <option value="name" {{ ($sort ?? '') === 'name' ? 'selected' : '' }}>Nama A-Z</option>
+                </select>
             </div>
         </div>
 

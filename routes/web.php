@@ -13,8 +13,21 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CouponController;
 
 Route::get('/', function () {
-    $products = \App\Models\Product::with(['brand', 'variants'])->get();
-    return view('welcome', compact('products'));
+    $sort = request('sort', 'latest');
+    
+    $products = \App\Models\Product::with(['brand', 'variants']);
+    
+    if ($sort === 'price_low') {
+        $products = $products->get()->sortBy(fn($p) => $p->variants->first()->price ?? 0);
+    } elseif ($sort === 'price_high') {
+        $products = $products->get()->sortByDesc(fn($p) => $p->variants->first()->price ?? 0);
+    } elseif ($sort === 'name') {
+        $products = $products->orderBy('name')->get();
+    } else {
+        $products = $products->latest()->get();
+    }
+
+    return view('welcome', compact('products', 'sort'));
 });
 
 Route::get('/dashboard', function () {
