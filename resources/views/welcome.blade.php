@@ -13,7 +13,10 @@
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <a href="/" class="text-2xl font-bold text-sky-400 tracking-widest">Skinist</a>
             <div class="flex-1 mx-8">
-                <input type="text" placeholder="Search products..." class="w-full border border-sky-200 rounded-full px-5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-sky-50">
+                <form action="{{ route('search') }}" method="GET" class="w-full">
+                    <input type="text" name="q" placeholder="Search products..." 
+                        class="w-full border border-sky-200 rounded-full px-5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-sky-50">
+                </form>
             </div>
             <div class="flex items-center gap-4">
                 @auth

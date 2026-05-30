@@ -54,4 +54,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/admin/categories/{id}', [AdminController::class, 'destroyCategory'])->name('admin.categories.destroy');
 });
 
+// Search
+Route::get('/search', function () {
+    $query = request('q');
+    $products = \App\Models\Product::with(['brand', 'variants'])
+                ->where('name', 'like', "%{$query}%")
+                ->orWhereHas('brand', function($q) use ($query) {
+                    $q->where('name', 'like', "%{$query}%");
+                })
+                ->get();
+    return view('search', compact('products', 'query'));
+})->name('search');
+
 require __DIR__.'/auth.php';
