@@ -20,7 +20,7 @@
             </div>
             <div class="flex items-center gap-4">
                 @auth
-                    <span class="text-sm text-sky-500">Hi, {{ auth()->user()->name }}</span>
+                    <a href="{{ route('profile.show') }}" class="text-sm text-sky-500 hover:underline">Hi, {{ auth()->user()->name }}</a>
                     <a href="{{ route('wishlist.index') }}" class="text-sky-400">❤️</a>
                     <a href="{{ route('cart.index') }}" class="relative">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -53,24 +53,24 @@
                 <div class="relative group">
                     <a href="#" class="hover:text-sky-500">Categories</a>
                     <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-xl py-2 z-50 min-w-32">
-                    @foreach(\App\Models\Category::all() as $cat)
-                    <a href="{{ route('category.show', $cat->slug) }}" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-500">{{ $cat->name }}</a>
-                    @endforeach
+                        @foreach(\App\Models\Category::all() as $cat)
+                        <a href="{{ route('category.show', $cat->slug) }}" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-500">{{ $cat->name }}</a>
+                        @endforeach
+                    </div>
                 </div>
-            </div>
-            <div class="relative group">
-                <a href="#" class="hover:text-sky-500">Brands</a>
-                <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-xl py-2 z-50 min-w-32">
-                    @foreach(\App\Models\Brand::all() as $brand)
-                    <a href="{{ route('brand.show', $brand->slug) }}" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-500">{{ $brand->name }}</a>
-                    @endforeach
+                <div class="relative group">
+                    <a href="#" class="hover:text-sky-500">Brands</a>
+                    <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-xl py-2 z-50 min-w-32">
+                        @foreach(\App\Models\Brand::all() as $brand)
+                        <a href="{{ route('brand.show', $brand->slug) }}" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-500">{{ $brand->name }}</a>
+                        @endforeach
+                    </div>
                 </div>
+                <a href="{{ route('best.seller') }}" class="hover:text-sky-500">Best Seller</a>
+                <a href="{{ route('new.arrival') }}" class="hover:text-sky-500">New Arrival</a>
+                <a href="#" class="hover:text-sky-500">Best Deals</a>
             </div>
-            <a href="{{ route('best.seller') }}" class="hover:text-sky-500">Best Seller</a>
-            <a href="{{ route('new.arrival') }}" class="hover:text-sky-500">New Arrival</a>
-            <a href="#" class="hover:text-sky-500">Best Deals</a>
         </div>
-    </div>
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 py-8">
@@ -80,7 +80,7 @@
             <div>
                 <p class="text-sky-400 text-sm font-semibold tracking-widest uppercase mb-2">New Arrival</p>
                 <h1 class="text-4xl font-bold text-gray-700 mb-4">keep the barrier safe<br>let your flawless<br>skin speak</h1>
-                <a href="#" class="bg-sky-300 hover:bg-sky-400 text-white px-8 py-3 rounded-full font-semibold transition-all">Shop Now</a>
+                <a href="{{ route('new.arrival') }}" class="bg-sky-300 hover:bg-sky-400 text-white px-8 py-3 rounded-full font-semibold transition-all">Shop Now</a>
             </div>
             <div class="text-8xl font-bold text-sky-200 opacity-50 select-none">Skinist</div>
         </div>
@@ -119,83 +119,48 @@
                     <p class="text-sm font-semibold text-gray-700 mt-1">{{ $product->name }}</p>
                     <p class="text-sky-500 font-bold mt-1">Rp {{ number_format($product->variants->first()->price ?? 0, 0, ',', '.') }}</p>
                 </a>
-                {{-- Tombol Add to Cart --}}
                 @auth
                 <button onclick="openShadePopup({{ $product->id }}, {{ $product->variants->toJson() }})"
                     class="w-full mt-3 bg-sky-100 hover:bg-sky-300 hover:text-white text-sky-500 text-sm font-semibold py-2 rounded-xl transition-all duration-200">
                     + Add to Cart
                 </button>
+                <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST" class="mt-2">
+                    @csrf
+                    @php
+                        $inWishlist = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
+                    @endphp
+                    <button type="submit"
+                        class="w-full border {{ $inWishlist ? 'border-red-300 text-red-400 hover:bg-red-50' : 'border-sky-200 text-sky-400 hover:bg-sky-50' }} text-sm font-semibold py-2 rounded-xl transition-all duration-200">
+                        {{ $inWishlist ? '❤️ Wishlisted' : '🤍 Wishlist' }}
+                    </button>
+                </form>
                 @endauth
-                </div>
-                @empty
-                <div class="col-span-4 text-center text-gray-400 py-12">Belum ada produk.</div>
-                @endforelse
             </div>
+            @empty
+            <div class="col-span-4 text-center text-gray-400 py-12">Belum ada produk.</div>
+            @endforelse
+        </div>
 
-            {{-- POPUP SHADE PICKER --}}
-            <div id="shade-popup" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden flex items-center justify-center">
-                <div class="bg-white rounded-3xl p-6 shadow-xl w-80">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-gray-700">Pilih Shade</h3>
-                        <button onclick="closeShadePopup()" class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
-                    </div>
-                    <div id="popup-shades" class="flex flex-wrap gap-3 mb-4"></div>
-                    <p id="popup-shade-name" class="text-sm text-sky-400 font-medium mb-4"></p>
-                    <form id="popup-cart-form" action="{{ route('cart.add') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="product_variant_id" id="popup-variant-id">
-                        <input type="hidden" name="quantity" value="1">
-                        <button type="submit"
-                            class="w-full bg-sky-300 hover:bg-sky-400 text-white font-semibold py-3 rounded-2xl transition-all">
-                            🛒 Tambah ke Keranjang
-                        </button>
-                    </form>
+        {{-- POPUP SHADE PICKER --}}
+        <div id="shade-popup" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden flex items-center justify-center">
+            <div class="bg-white rounded-3xl p-6 shadow-xl w-80">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-700">Pilih Shade</h3>
+                    <button onclick="closeShadePopup()" class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
                 </div>
+                <div id="popup-shades" class="flex flex-wrap gap-3 mb-4"></div>
+                <p id="popup-shade-name" class="text-sm text-sky-400 font-medium mb-4"></p>
+                <form id="popup-cart-form" action="{{ route('cart.add') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="product_variant_id" id="popup-variant-id">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit"
+                        class="w-full bg-sky-300 hover:bg-sky-400 text-white font-semibold py-3 rounded-2xl transition-all">
+                        🛒 Tambah ke Keranjang
+                    </button>
+                </form>
             </div>
-
-            <script>
-            function openShadePopup(productId, variants) {
-                const popup = document.getElementById('shade-popup');
-                const shadesContainer = document.getElementById('popup-shades');
-                const shadeName = document.getElementById('popup-shade-name');
-                const variantId = document.getElementById('popup-variant-id');
-
-                 shadesContainer.innerHTML = '';
-
-                variants.forEach((variant, index) => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'w-10 h-10 rounded-full border-4 border-white shadow-md hover:scale-110 transition-transform duration-200';
-                    btn.style.backgroundColor = variant.hex_color;
-                    btn.title = variant.shade_name;
-                    btn.onclick = function() {
-                        variantId.value = variant.id;
-                        shadeName.textContent = variant.shade_name;
-                        document.querySelectorAll('#popup-shades button').forEach(b => {
-                            b.classList.remove('ring-4', 'ring-sky-300', 'ring-offset-2');
-                        });
-                        btn.classList.add('ring-4', 'ring-sky-300', 'ring-offset-2');
-                    };
-                    if (index === 0) {
-                        variantId.value = variant.id;
-                        shadeName.textContent = variant.shade_name;
-                        setTimeout(() => btn.classList.add('ring-4', 'ring-sky-300', 'ring-offset-2'), 10);
-                    }
-                    shadesContainer.appendChild(btn);
-                });
-
-                popup.classList.remove('hidden');
-            }
-
-            function closeShadePopup() {
-                document.getElementById('shade-popup').classList.add('hidden');
-            }
-
-            // Tutup popup kalau klik di luar
-            document.getElementById('shade-popup').addEventListener('click', function(e) {
-                if (e.target === this) closeShadePopup();
-            });
-            </script>
+        </div>
 
         {{-- SHOP BY CATEGORIES --}}
         <div class="text-center mb-8">
@@ -204,10 +169,10 @@
         <div class="grid grid-cols-3 gap-6 mb-16">
             @php $categoryColors = ['bg-sky-200', 'bg-pink-200', 'bg-rose-200', 'bg-purple-200', 'bg-green-200', 'bg-yellow-200']; @endphp
             @foreach(\App\Models\Category::all() as $index => $cat)
-        <a href="{{ route('category.show', $cat->slug) }}" class="rounded-2xl h-48 {{ $categoryColors[$index % count($categoryColors)] }} flex items-end p-4 hover:shadow-md transition-all">
-            <span class="text-white font-bold text-lg drop-shadow">{{ $cat->name }}</span>
-        </a>
-        @endforeach
+            <a href="{{ route('category.show', $cat->slug) }}" class="rounded-2xl h-48 {{ $categoryColors[$index % count($categoryColors)] }} flex items-end p-4 hover:shadow-md transition-all">
+                <span class="text-white font-bold text-lg drop-shadow">{{ $cat->name }}</span>
+            </a>
+            @endforeach
         </div>
 
     </main>
@@ -215,6 +180,49 @@
     <footer class="bg-white border-t border-sky-100 py-8 text-center text-sm text-gray-400">
         © 2025 Skinist — keep the barrier safe, let your flawless skin speak.
     </footer>
+
+<script>
+function openShadePopup(productId, variants) {
+    const popup = document.getElementById('shade-popup');
+    const shadesContainer = document.getElementById('popup-shades');
+    const shadeName = document.getElementById('popup-shade-name');
+    const variantId = document.getElementById('popup-variant-id');
+
+    shadesContainer.innerHTML = '';
+
+    variants.forEach((variant, index) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'w-10 h-10 rounded-full border-4 border-white shadow-md hover:scale-110 transition-transform duration-200';
+        btn.style.backgroundColor = variant.hex_color;
+        btn.title = variant.shade_name;
+        btn.onclick = function() {
+            variantId.value = variant.id;
+            shadeName.textContent = variant.shade_name;
+            document.querySelectorAll('#popup-shades button').forEach(b => {
+                b.classList.remove('ring-4', 'ring-sky-300', 'ring-offset-2');
+            });
+            btn.classList.add('ring-4', 'ring-sky-300', 'ring-offset-2');
+        };
+        if (index === 0) {
+            variantId.value = variant.id;
+            shadeName.textContent = variant.shade_name;
+            setTimeout(() => btn.classList.add('ring-4', 'ring-sky-300', 'ring-offset-2'), 10);
+        }
+        shadesContainer.appendChild(btn);
+    });
+
+    popup.classList.remove('hidden');
+}
+
+function closeShadePopup() {
+    document.getElementById('shade-popup').classList.add('hidden');
+}
+
+document.getElementById('shade-popup').addEventListener('click', function(e) {
+    if (e.target === this) closeShadePopup();
+});
+</script>
 
 </body>
 </html>
