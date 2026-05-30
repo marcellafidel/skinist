@@ -14,18 +14,23 @@
             <a href="/" class="text-2xl font-bold text-sky-400 tracking-widest">Skinist</a>
             <div class="flex-1 mx-8">
                 <form action="{{ route('search') }}" method="GET" class="w-full">
-                    <input type="text" name="q" placeholder="Search products..." 
+                    <input type="text" name="q" placeholder="Search products..."
                         class="w-full border border-sky-200 rounded-full px-5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-sky-50">
                 </form>
             </div>
             <div class="flex items-center gap-4">
                 @auth
                     <span class="text-sm text-sky-500">Hi, {{ auth()->user()->name }}</span>
+                    <a href="{{ route('wishlist.index') }}" class="text-sky-400 hover:text-sky-500">❤️</a>
                     <a href="{{ route('cart.index') }}" class="relative">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                     </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="text-sm text-gray-400 hover:text-red-400">Logout</button>
+                    </form>
                 @else
                     <a href="{{ route('login') }}" class="text-sm text-sky-500 hover:underline">Login</a>
                     <a href="{{ route('register') }}" class="text-sm bg-sky-300 text-white px-4 py-2 rounded-full hover:bg-sky-400">Register</a>
@@ -92,6 +97,20 @@
                     </p>
                 </div>
 
+                {{-- WISHLIST --}}
+                @auth
+                <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST">
+                    @csrf
+                    @php
+                        $inWishlist = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
+                    @endphp
+                    <button type="submit"
+                        class="w-full border-2 {{ $inWishlist ? 'border-red-300 text-red-400 hover:bg-red-50' : 'border-sky-200 text-sky-400 hover:bg-sky-50' }} font-semibold py-3 rounded-2xl transition-all duration-200">
+                        {{ $inWishlist ? '❤️ Hapus dari Wishlist' : '🤍 Tambah ke Wishlist' }}
+                    </button>
+                </form>
+                @endauth
+
                 {{-- ADD TO CART --}}
                 <form action="{{ route('cart.add') }}" method="POST">
                     @csrf
@@ -111,130 +130,121 @@
         </div>
 
         {{-- ULASAN --}}
-<div class="mt-16">
-    <h2 class="text-xl font-bold text-gray-700 mb-6">Ulasan Pembeli</h2>
+        <div class="mt-16">
+            <h2 class="text-xl font-bold text-gray-700 mb-6">Ulasan Pembeli</h2>
 
-    @if(session('success'))
-        <div class="bg-sky-100 text-sky-700 px-4 py-3 rounded-xl mb-4">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="bg-red-100 text-red-600 px-4 py-3 rounded-xl mb-4">{{ session('error') }}</div>
-    @endif
-
-    {{-- FORM REVIEW --}}
-    @auth
-    <div class="bg-white rounded-2xl p-5 shadow-sm mb-6">
-        <h3 class="font-semibold text-gray-700 mb-4">Tulis Ulasan</h3>
-        <form action="{{ route('reviews.store', $product->id) }}" method="POST">
-            @csrf
-            {{-- RATING BINTANG --}}
-            <div class="flex items-center gap-2 mb-4">
-                <p class="text-sm text-gray-500">Rating:</p>
-                <div class="flex gap-1" id="star-rating">
-                    @for($i = 1; $i <= 5; $i++)
-                    <button type="button" onclick="setRating({{ $i }})"
-                        class="star text-3xl text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer"
-                        data-value="{{ $i }}">★</button>
-                    @endfor
-                </div>
-                <input type="hidden" name="rating" id="rating-input" value="0">
-            </div>
-            <div class="mb-4">
-                <textarea name="comment" rows="3" placeholder="Tulis ulasanmu di sini..."
-                    class="w-full bg-gray-50 border border-sky-100 rounded-xl px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300"></textarea>
-            </div>
-            <button type="submit"
-                class="bg-sky-300 hover:bg-sky-400 text-white px-6 py-2 rounded-xl font-semibold transition-all">
-                Kirim Ulasan
-            </button>
-        </form>
-    </div>
-    @else
-    <div class="bg-sky-50 rounded-2xl p-4 mb-6 text-center">
-        <p class="text-sm text-gray-500">
-            <a href="{{ route('login') }}" class="text-sky-400 hover:underline font-semibold">Login</a> untuk memberikan ulasan.
-        </p>
-    </div>
-    @endauth
-
-    {{-- DAFTAR ULASAN --}}
-    @forelse($product->reviews as $review)
-    <div class="bg-white rounded-2xl p-5 shadow-sm mb-4">
-        <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-sky-200 flex items-center justify-center text-sky-600 font-bold text-sm">
-                    {{ strtoupper(substr($review->user->name, 0, 1)) }}
-                </div>
-                <div>
-                    <p class="text-sm font-semibold text-gray-700">{{ $review->user->name }}</p>
-                    <div class="flex">
-                        @for($i = 1; $i <= 5; $i++)
-                            <span class="text-sm {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-200' }}">★</span>
-                        @endfor
-                    </div>
-                </div>
-            </div>
-            @if(auth()->check() && auth()->id() === $review->user_id)
-            <form action="{{ route('reviews.destroy', $review->id) }}" method="POST">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="text-red-300 hover:text-red-500 text-xs">Hapus</button>
-            </form>
+            @if(session('success'))
+                <div class="bg-sky-100 text-sky-700 px-4 py-3 rounded-xl mb-4">{{ session('success') }}</div>
             @endif
-        </div>
-        <p class="text-sm text-gray-500 mt-2">{{ $review->comment }}</p>
-        <p class="text-xs text-gray-300 mt-1">{{ $review->created_at->format('d M Y') }}</p>
-    </div>
-    @empty
-    <p class="text-gray-400 text-sm">Belum ada ulasan.</p>
-    @endforelse
-    </div>
+            @if(session('error'))
+                <div class="bg-red-100 text-red-600 px-4 py-3 rounded-xl mb-4">{{ session('error') }}</div>
+            @endif
 
-    <script>
-    function setRating(value) 
-    {
+            {{-- FORM REVIEW --}}
+            @auth
+            <div class="bg-white rounded-2xl p-5 shadow-sm mb-6">
+                <h3 class="font-semibold text-gray-700 mb-4">Tulis Ulasan</h3>
+                <form action="{{ route('reviews.store', $product->id) }}" method="POST">
+                    @csrf
+                    <div class="flex items-center gap-2 mb-4">
+                        <p class="text-sm text-gray-500">Rating:</p>
+                        <div class="flex gap-1" id="star-rating">
+                            @for($i = 1; $i <= 5; $i++)
+                            <button type="button" onclick="setRating({{ $i }})"
+                                class="star text-3xl text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer"
+                                data-value="{{ $i }}">★</button>
+                            @endfor
+                        </div>
+                        <input type="hidden" name="rating" id="rating-input" value="0">
+                    </div>
+                    <div class="mb-4">
+                        <textarea name="comment" rows="3" placeholder="Tulis ulasanmu di sini..."
+                            class="w-full bg-gray-50 border border-sky-100 rounded-xl px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300"></textarea>
+                    </div>
+                    <button type="submit"
+                        class="bg-sky-300 hover:bg-sky-400 text-white px-6 py-2 rounded-xl font-semibold transition-all">
+                        Kirim Ulasan
+                    </button>
+                </form>
+            </div>
+            @else
+            <div class="bg-sky-50 rounded-2xl p-4 mb-6 text-center">
+                <p class="text-sm text-gray-500">
+                    <a href="{{ route('login') }}" class="text-sky-400 hover:underline font-semibold">Login</a> untuk memberikan ulasan.
+                </p>
+            </div>
+            @endauth
+
+            {{-- DAFTAR ULASAN --}}
+            @forelse($product->reviews as $review)
+            <div class="bg-white rounded-2xl p-5 shadow-sm mb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-sky-200 flex items-center justify-center text-sky-600 font-bold text-sm">
+                            {{ strtoupper(substr($review->user->name, 0, 1)) }}
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-700">{{ $review->user->name }}</p>
+                            <div class="flex">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <span class="text-sm {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-200' }}">★</span>
+                                @endfor
+                            </div>
+                        </div>
+                    </div>
+                    @if(auth()->check() && auth()->id() === $review->user_id)
+                    <form action="{{ route('reviews.destroy', $review->id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-300 hover:text-red-500 text-xs">Hapus</button>
+                    </form>
+                    @endif
+                </div>
+                <p class="text-sm text-gray-500 mt-2">{{ $review->comment }}</p>
+                <p class="text-xs text-gray-300 mt-1">{{ $review->created_at->format('d M Y') }}</p>
+            </div>
+            @empty
+            <p class="text-gray-400 text-sm">Belum ada ulasan.</p>
+            @endforelse
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-sky-100 py-8 text-center text-sm text-gray-400">
+        © 2025 Skinist — keep the barrier safe, let your flawless skin speak.
+    </footer>
+
+<script>
+    const variants = @json($product->variants);
+
+    function selectVariant(id, price, shadeName) {
+        document.getElementById('selected-variant').value = id;
+        const formatted = new Intl.NumberFormat('id-ID').format(price);
+        document.getElementById('product-price').textContent = 'Rp ' + formatted;
+        document.getElementById('shade-name').textContent = shadeName;
+        const variant = variants.find(v => v.id === id);
+        if (variant) {
+            document.getElementById('stock-info').textContent = 'Stok: ' + variant.stock + ' pcs';
+        }
+        document.querySelectorAll('.shade-btn').forEach(btn => {
+            btn.classList.remove('ring-4', 'ring-sky-300', 'ring-offset-2');
+        });
+        event.currentTarget.classList.add('ring-4', 'ring-sky-300', 'ring-offset-2');
+    }
+
+    function setRating(value) {
         document.getElementById('rating-input').value = value;
-        document.querySelectorAll('.star').forEach(star => 
-        {
-            if (parseInt(star.dataset.value) <= value) 
-            {
+        document.querySelectorAll('.star').forEach(star => {
+            if (parseInt(star.dataset.value) <= value) {
                 star.classList.remove('text-gray-300');
                 star.classList.add('text-yellow-400');
-            } 
-            else 
-            {
-            star.classList.remove('text-yellow-400');
-            star.classList.add('text-gray-300');
+            } else {
+                star.classList.remove('text-yellow-400');
+                star.classList.add('text-gray-300');
             }
         });
     }
-    </script>
-
-        </main>
-
-        <footer class="bg-white border-t border-sky-100 py-8 text-center text-sm text-gray-400">
-            © 2025 Skinist — keep the barrier safe, let your flawless skin speak.
-        </footer>
-
-    <script>
-        const variants = @json($product->variants);
-
-        function selectVariant(id, price, shadeName) {
-            document.getElementById('selected-variant').value = id;
-            const formatted = new Intl.NumberFormat('id-ID').format(price);
-            document.getElementById('product-price').textContent = 'Rp ' + formatted;
-            document.getElementById('shade-name').textContent = shadeName;
-            const variant = variants.find(v => v.id === id);
-            if (variant) 
-            {
-                document.getElementById('stock-info').textContent = 'Stok: ' + variant.stock + ' pcs';
-            }
-            document.querySelectorAll('.shade-btn').forEach(btn => {
-                btn.classList.remove('ring-4', 'ring-sky-300', 'ring-offset-2');
-            });
-            event.currentTarget.classList.add('ring-4', 'ring-sky-300', 'ring-offset-2');
-    }
-    </script>
+</script>
 
 </body>
 </html>

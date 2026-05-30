@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\WishlistController;
 
 Route::get('/', function () {
     $products = \App\Models\Product::with(['brand', 'variants'])->get();
@@ -38,7 +39,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{id}/upload', [OrderController::class, 'uploadPayment'])->name('orders.upload');
     Route::post('/products/{id}/review', [ReviewController::class, 'store'])->name('reviews.store');
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/{id}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 });
+
 // Admin
 Route::middleware('auth')->group(function () {
     Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders');
