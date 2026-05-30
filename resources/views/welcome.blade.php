@@ -50,13 +50,27 @@
         </div>
         <div class="border-t border-sky-100">
             <div class="max-w-7xl mx-auto px-4 py-2 flex gap-6 text-sm text-gray-500">
-                <a href="#" class="hover:text-sky-500">Categories</a>
-                <a href="#" class="hover:text-sky-500">Brands</a>
-                <a href="{{ route('best.seller') }}" class="text-sky-400 font-semibold border-b-2 border-sky-400 pb-1">best seller</a>
-                <a href="{{ route('new.arrival') }}" class="text-gray-400 hover:text-sky-400">new arrival</a>
-                <a href="#" class="hover:text-sky-500">Best Deals</a>
+                <div class="relative group">
+                    <a href="#" class="hover:text-sky-500">Categories</a>
+                    <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-xl py-2 z-50 min-w-32">
+                    @foreach(\App\Models\Category::all() as $cat)
+                    <a href="{{ route('category.show', $cat->slug) }}" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-500">{{ $cat->name }}</a>
+                    @endforeach
+                </div>
             </div>
+            <div class="relative group">
+                <a href="#" class="hover:text-sky-500">Brands</a>
+                <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-xl py-2 z-50 min-w-32">
+                    @foreach(\App\Models\Brand::all() as $brand)
+                    <a href="{{ route('brand.show', $brand->slug) }}" class="block px-4 py-2 hover:bg-sky-50 hover:text-sky-500">{{ $brand->name }}</a>
+                    @endforeach
+                </div>
+            </div>
+            <a href="{{ route('best.seller') }}" class="hover:text-sky-500">Best Seller</a>
+            <a href="{{ route('new.arrival') }}" class="hover:text-sky-500">New Arrival</a>
+            <a href="#" class="hover:text-sky-500">Best Deals</a>
         </div>
+    </div>
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 py-8">

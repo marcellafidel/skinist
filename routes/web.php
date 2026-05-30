@@ -114,4 +114,14 @@ Route::get('/kategori/{slug}', function ($slug) {
     return view('search', compact('products', 'query'));
 })->name('category.show');
 
+// Filter by Brand
+Route::get('/brand/{slug}', function ($slug) {
+    $brand = \App\Models\Brand::where('slug', $slug)->firstOrFail();
+    $products = \App\Models\Product::with(['brand', 'variants'])
+                ->where('brand_id', $brand->id)
+                ->get();
+    $query = $brand->name;
+    return view('search', compact('products', 'query'));
+})->name('brand.show');
+
 require __DIR__.'/auth.php';
