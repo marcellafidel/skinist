@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\Notification;
 
 class CheckoutController extends Controller
 {
@@ -52,12 +53,10 @@ class CheckoutController extends Controller
 
                 // Buat order detail & kurangi stok
                 foreach ($carts as $cart) {
-                    // Cek stok
                     if ($cart->variant->stock < $cart->quantity) {
                         throw new \Exception('Stok ' . $cart->variant->shade_name . ' tidak mencukupi!');
                     }
 
-                    // Simpan detail order
                     OrderDetail::create([
                         'order_id' => $order->id,
                         'product_variant_id' => $cart->product_variant_id,
@@ -65,12 +64,19 @@ class CheckoutController extends Controller
                         'price' => $cart->variant->price,
                     ]);
 
-                    // Kurangi stok
                     $cart->variant->decrement('stock', $cart->quantity);
                 }
 
                 // Kosongkan keranjang
                 Cart::where('user_id', auth()->id())->delete();
+
+                // Kirim notifikasi
+                Notification::create([
+                    'user_id' => auth()->id(),
+                    'title' => 'Pesanan Berhasil Dibuat! 🎉',
+                    'message' => 'Pesanan kamu dengan invoice ' . $order->invoice_number . ' senilai Rp ' . number_format($total, 0, ',', '.') . ' sedang menunggu pembayaran.',
+                    'type' => 'success',
+                ]);
             });
 
             return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibuat!');

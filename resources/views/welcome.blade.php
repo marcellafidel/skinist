@@ -14,17 +14,29 @@
             <a href="/" class="text-2xl font-bold text-sky-400 tracking-widest">Skinist</a>
             <div class="flex-1 mx-8">
                 <form action="{{ route('search') }}" method="GET" class="w-full">
-                    <input type="text" name="q" placeholder="Search products..." 
+                    <input type="text" name="q" placeholder="Search products..."
                         class="w-full border border-sky-200 rounded-full px-5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-sky-50">
                 </form>
             </div>
             <div class="flex items-center gap-4">
                 @auth
                     <span class="text-sm text-sky-500">Hi, {{ auth()->user()->name }}</span>
+                    <a href="{{ route('wishlist.index') }}" class="text-sky-400">❤️</a>
                     <a href="{{ route('cart.index') }}" class="relative">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
+                    </a>
+                    <a href="{{ route('notifications.index') }}" class="relative">
+                        🔔
+                        @php
+                            $unread = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
+                        @endphp
+                        @if($unread > 0)
+                            <span class="absolute -top-2 -right-2 bg-red-400 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                {{ $unread }}
+                            </span>
+                        @endif
                     </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
