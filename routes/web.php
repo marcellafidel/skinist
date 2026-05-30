@@ -10,6 +10,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\CouponController;
 
 Route::get('/', function () {
     $products = \App\Models\Product::with(['brand', 'variants'])->get();
@@ -29,6 +30,7 @@ Route::middleware('auth')->group(function () {
 // Product
 Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
 
+//Cart&Checkout
 Route::middleware('auth')->group(function () {
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -46,6 +48,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/show', function() {
         return view('profile.show');
     })->name('profile.show');
+    Route::post('/coupon/apply', [CouponController::class, 'apply'])->name('coupon.apply');
+    Route::get('/coupon/remove', [CouponController::class, 'remove'])->name('coupon.remove');
 });
 
 // Admin
@@ -63,6 +67,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/categories', [AdminController::class, 'categories'])->name('admin.categories');
     Route::post('/admin/categories', [AdminController::class, 'storeCategory'])->name('admin.categories.store');
     Route::delete('/admin/categories/{id}', [AdminController::class, 'destroyCategory'])->name('admin.categories.destroy');
+    Route::get('/admin/coupons', [AdminController::class, 'coupons'])->name('admin.coupons');
+    Route::post('/admin/coupons', [AdminController::class, 'storeCoupon'])->name('admin.coupons.store');
+    Route::delete('/admin/coupons/{id}', [AdminController::class, 'destroyCoupon'])->name('admin.coupons.destroy');
 });
 
 // Search

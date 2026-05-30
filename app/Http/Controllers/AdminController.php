@@ -96,4 +96,43 @@ class AdminController extends Controller
         \App\Models\Category::findOrFail($id)->delete();
         return back()->with('success', 'Kategori berhasil dihapus!');
     }
+
+    public function coupons()
+    {
+        $this->checkAdmin();
+        $coupons = \App\Models\Coupon::latest()->get();
+        return view('admin.coupons', compact('coupons'));
+    }
+
+    public function storeCoupon(Request $request)
+    {
+        $this->checkAdmin();
+        $request->validate([
+            'code' => 'required|string|unique:coupons,code',
+            'type' => 'required|in:percent,fixed',
+            'value' => 'required|numeric|min:1',
+            'min_purchase' => 'nullable|numeric|min:0',
+            'max_uses' => 'nullable|integer|min:1',
+            'expires_at' => 'nullable|date',
+        ]);
+
+        \App\Models\Coupon::create([
+            'code' => strtoupper($request->code),
+            'type' => $request->type,
+            'value' => $request->value,
+            'min_purchase' => $request->min_purchase ?? 0,
+            'max_uses' => $request->max_uses ?? 100,
+            'expires_at' => $request->expires_at,
+            'is_active' => true,
+        ]);
+
+        return back()->with('success', 'Kupon berhasil dibuat!');
+    }
+
+    public function destroyCoupon($id)
+    {
+        $this->checkAdmin();
+        \App\Models\Coupon::findOrFail($id)->delete();
+        return back()->with('success', 'Kupon berhasil dihapus!');
+    }
 }

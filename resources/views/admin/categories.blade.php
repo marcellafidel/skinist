@@ -16,6 +16,7 @@
                 <a href="{{ route('admin.products.index') }}" class="text-sm text-sky-500 hover:underline">Produk</a>
                 <a href="{{ route('admin.brands') }}" class="text-sm text-sky-500 hover:underline">Brand</a>
                 <a href="{{ route('admin.categories') }}" class="text-sm text-sky-500 hover:underline font-bold">Kategori</a>
+                <a href="{{ route('admin.coupons') }}" class="text-sm text-sky-500 hover:underline">Kupon</a>
                 <span class="text-sm bg-sky-100 text-sky-600 px-3 py-1 rounded-full font-semibold">Admin Panel</span>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

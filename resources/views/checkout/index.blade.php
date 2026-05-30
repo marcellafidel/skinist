@@ -8,7 +8,6 @@
 </head>
 <body class="bg-sky-50 text-gray-800">
 
-    {{-- NAVBAR --}}
     <nav class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <a href="/" class="text-2xl font-bold text-sky-400 tracking-widest">Skinist</a>
@@ -44,7 +43,7 @@
                         <input type="email" value="{{ auth()->user()->email }}" disabled
                             class="w-full bg-sky-50 border border-sky-100 rounded-xl px-4 py-3 text-gray-600">
                     </div>
-                    <div class="mb-6">
+                    <div class="mb-4">
                         <label class="text-sm text-gray-500 mb-1 block">Alamat Lengkap</label>
                         <textarea name="shipping_address" rows="4" required
                             placeholder="Masukkan alamat lengkap kamu..."
@@ -52,6 +51,32 @@
                         @error('shipping_address')
                             <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
                         @enderror
+                    </div>
+
+                    {{-- KUPON DISKON --}}
+                    <div class="mb-6">
+                        <h3 class="text-sm font-semibold text-gray-600 mb-2">Punya Kupon?</h3>
+                        @if(session('coupon_code'))
+                            <div class="bg-green-50 border border-green-200 rounded-xl p-3 flex justify-between items-center">
+                                <p class="text-sm font-bold text-green-600">✅ Kupon {{ session('coupon_code') }} aktif!</p>
+                                <a href="{{ route('coupon.remove') }}" class="text-red-400 text-xs hover:underline">Hapus</a>
+                            </div>
+                        @else
+                            @if(session('coupon_error'))
+                                <p class="text-red-400 text-sm mb-2">{{ session('coupon_error') }}</p>
+                            @endif
+                            @if(session('coupon_success'))
+                                <p class="text-green-500 text-sm mb-2">{{ session('coupon_success') }}</p>
+                            @endif
+                            <div class="flex gap-3">
+                                <input type="text" id="coupon_input" placeholder="Masukkan kode kupon..."
+                                    class="flex-1 bg-gray-50 border border-sky-100 rounded-xl px-4 py-3 text-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                                <button type="button" onclick="applyCoupon()"
+                                    class="bg-sky-200 hover:bg-sky-300 text-sky-700 px-5 py-3 rounded-xl text-sm font-semibold transition-all">
+                                    Pakai
+                                </button>
+                            </div>
+                        @endif
                     </div>
 
                     <button type="submit"
@@ -87,11 +112,28 @@
 
                 {{-- Total --}}
                 <div class="bg-sky-300 rounded-3xl shadow-sm p-6 text-white">
-                    <div class="flex justify-between items-center">
+                    @php
+                        $subtotal = $carts->sum(fn($c) => $c->variant->price * $c->quantity);
+                        $discount = 0;
+                        if(session('coupon_id')) {
+                            $coupon = \App\Models\Coupon::find(session('coupon_id'));
+                            if($coupon) $discount = $coupon->calculateDiscount($subtotal);
+                        }
+                        $finalTotal = $subtotal - $discount;
+                    @endphp
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">Subtotal</span>
+                        <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                    </div>
+                    @if($discount > 0)
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">Diskon Kupon</span>
+                        <span class="text-green-200">- Rp {{ number_format($discount, 0, ',', '.') }}</span>
+                    </div>
+                    @endif
+                    <div class="flex justify-between items-center border-t border-sky-200 pt-2 mt-2">
                         <span class="font-semibold">Total Pembayaran</span>
-                        <span class="text-2xl font-bold">
-                            Rp {{ number_format($carts->sum(fn($c) => $c->variant->price * $c->quantity), 0, ',', '.') }}
-                        </span>
+                        <span class="text-2xl font-bold">Rp {{ number_format($finalTotal, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>
@@ -103,6 +145,32 @@
     <footer class="bg-white border-t border-sky-100 py-8 text-center text-sm text-gray-400 mt-16">
         © 2025 Skinist — keep the barrier safe, let your flawless skin speak.
     </footer>
+
+<script>
+function applyCoupon() {
+    const code = document.getElementById('coupon_input').value;
+    if (!code) return;
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route('coupon.apply') }}';
+    
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = '_token';
+    csrf.value = '{{ csrf_token() }}';
+    
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'coupon_code';
+    input.value = code;
+    
+    form.appendChild(csrf);
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
 
 </body>
 </html>

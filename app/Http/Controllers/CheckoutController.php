@@ -42,11 +42,23 @@ class CheckoutController extends Controller
                     return $cart->variant->price * $cart->quantity;
                 });
 
+                // Hitung diskon kupon
+                $discount = 0;
+                if (session('coupon_id')) {
+                    $coupon = \App\Models\Coupon::find(session('coupon_id'));
+                    if ($coupon && $coupon->isValid($total)) {
+                        $discount = $coupon->calculateDiscount($total);
+                        $coupon->increment('used_count');
+                        session()->forget(['coupon_code', 'coupon_id']);
+                    }
+                }
+                $finalTotal = $total - $discount;
+
                 // Buat order baru
                 $order = Order::create([
                     'user_id' => auth()->id(),
                     'invoice_number' => 'INV-' . strtoupper(uniqid()),
-                    'total_price' => $total,
+                    'total_price' => $finalTotal,
                     'status' => 'pending',
                     'shipping_address' => $request->shipping_address,
                 ]);
@@ -74,7 +86,7 @@ class CheckoutController extends Controller
                 Notification::create([
                     'user_id' => auth()->id(),
                     'title' => 'Pesanan Berhasil Dibuat! 🎉',
-                    'message' => 'Pesanan kamu dengan invoice ' . $order->invoice_number . ' senilai Rp ' . number_format($total, 0, ',', '.') . ' sedang menunggu pembayaran.',
+                    'message' => 'Pesanan kamu dengan invoice ' . $order->invoice_number . ' senilai Rp ' . number_format($finalTotal, 0, ',', '.') . ' sedang menunggu pembayaran.',
                     'type' => 'success',
                 ]);
             });
