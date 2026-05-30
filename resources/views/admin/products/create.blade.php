@@ -9,18 +9,20 @@
 <body class="bg-sky-50 text-gray-800">
 
     <nav class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <a href="/" class="text-2xl font-bold text-sky-400 tracking-widest">Skinist</a>
-            <div class="flex items-center gap-4">
-                <a href="{{ route('admin.orders') }}" class="text-sm text-sky-500 hover:underline">Pesanan</a>
-                <a href="{{ route('admin.products.index') }}" class="text-sm text-sky-500 hover:underline">Produk</a>
-                <span class="text-sm bg-sky-100 text-sky-600 px-3 py-1 rounded-full font-semibold">Admin Panel</span>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button class="text-sm text-gray-400 hover:text-red-400">Logout</button>
-                </form>
-            </div>
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <a href="/" class="text-2xl font-bold text-sky-400 tracking-widest">Skinist</a>
+        <div class="flex items-center gap-4">
+            <a href="{{ route('admin.orders') }}" class="text-sm text-sky-500 hover:underline">Pesanan</a>
+            <a href="{{ route('admin.products.index') }}" class="text-sm text-sky-500 hover:underline">Produk</a>
+            <a href="{{ route('admin.brands') }}" class="text-sm text-sky-500 hover:underline">Brand</a>
+            <a href="{{ route('admin.categories') }}" class="text-sm text-sky-500 hover:underline">Kategori</a>
+            <span class="text-sm bg-sky-100 text-sky-600 px-3 py-1 rounded-full font-semibold">Admin Panel</span>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button class="text-sm text-gray-400 hover:text-red-400">Logout</button>
+            </form>
         </div>
+    </div>
     </nav>
 
     <main class="max-w-3xl mx-auto px-4 py-8">

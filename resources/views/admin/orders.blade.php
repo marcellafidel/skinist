@@ -12,6 +12,10 @@
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <a href="/" class="text-2xl font-bold text-sky-400 tracking-widest">Skinist</a>
         <div class="flex items-center gap-4">
+            <a href="{{ route('admin.orders') }}" class="text-sm text-sky-500 hover:underline">Pesanan</a>
+            <a href="{{ route('admin.products.index') }}" class="text-sm text-sky-500 hover:underline">Produk</a>
+            <a href="{{ route('admin.brands') }}" class="text-sm text-sky-500 hover:underline">Brand</a>
+            <a href="{{ route('admin.categories') }}" class="text-sm text-sky-500 hover:underline">Kategori</a>
             <span class="text-sm bg-sky-100 text-sky-600 px-3 py-1 rounded-full font-semibold">Admin Panel</span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
