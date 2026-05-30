@@ -52,8 +52,8 @@
             <div class="max-w-7xl mx-auto px-4 py-2 flex gap-6 text-sm text-gray-500">
                 <a href="#" class="hover:text-sky-500">Categories</a>
                 <a href="#" class="hover:text-sky-500">Brands</a>
-                <a href="#" class="hover:text-sky-500">Best Seller</a>
-                <a href="#" class="hover:text-sky-500">New Arrival</a>
+                <a href="{{ route('best.seller') }}" class="text-sky-400 font-semibold border-b-2 border-sky-400 pb-1">best seller</a>
+                <a href="{{ route('new.arrival') }}" class="text-gray-400 hover:text-sky-400">new arrival</a>
                 <a href="#" class="hover:text-sky-500">Best Deals</a>
             </div>
         </div>
@@ -75,8 +75,8 @@
         <div class="text-center mb-8">
             <h2 class="text-2xl font-bold text-gray-700">CHOOSE YOUR FAVS</h2>
             <div class="flex justify-center gap-4 mt-2">
-                <a href="#" class="text-sky-400 font-semibold border-b-2 border-sky-400 pb-1">best seller</a>
-                <a href="#" class="text-gray-400 hover:text-sky-400">new arrival</a>
+                <a href="{{ route('best.seller') }}" class="text-sky-400 font-semibold border-b-2 border-sky-400 pb-1">best seller</a>
+                <a href="{{ route('new.arrival') }}" class="text-gray-400 hover:text-sky-400">new arrival</a>
             </div>
         </div>
 

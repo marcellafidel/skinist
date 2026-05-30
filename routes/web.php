@@ -29,7 +29,6 @@ Route::middleware('auth')->group(function () {
 // Product
 Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
 
-// Cart & Checkout
 Route::middleware('auth')->group(function () {
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -44,6 +43,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/wishlist/{id}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::get('/profile/show', function() {
+        return view('profile.show');
+    })->name('profile.show');
 });
 
 // Admin
@@ -74,5 +76,25 @@ Route::get('/search', function () {
                 ->get();
     return view('search', compact('products', 'query'));
 })->name('search');
+
+// New Arrival & Best Seller
+Route::get('/new-arrival', function () {
+    $products = \App\Models\Product::with(['brand', 'variants'])
+                ->latest()
+                ->take(8)
+                ->get();
+    $query = 'New Arrival';
+    return view('search', compact('products', 'query'));
+})->name('new.arrival');
+
+Route::get('/best-seller', function () {
+    $products = \App\Models\Product::with(['brand', 'variants'])
+                ->withCount('reviews')
+                ->orderBy('reviews_count', 'desc')
+                ->take(8)
+                ->get();
+    $query = 'Best Seller';
+    return view('search', compact('products', 'query'));
+})->name('best.seller');
 
 require __DIR__.'/auth.php';
