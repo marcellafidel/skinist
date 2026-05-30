@@ -111,47 +111,130 @@
         </div>
 
         {{-- ULASAN --}}
-        <div class="mt-16">
-            <h2 class="text-xl font-bold text-gray-700 mb-6">Ulasan Pembeli</h2>
-            @forelse($product->reviews as $review)
-            <div class="bg-white rounded-2xl p-5 shadow-sm mb-4">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-8 h-8 rounded-full bg-sky-200 flex items-center justify-center text-sky-600 font-bold text-sm">
-                        {{ strtoupper(substr($review->user->name, 0, 1)) }}
-                    </div>
-                    <p class="text-sm font-semibold text-gray-700">{{ $review->user->name }}</p>
+<div class="mt-16">
+    <h2 class="text-xl font-bold text-gray-700 mb-6">Ulasan Pembeli</h2>
+
+    @if(session('success'))
+        <div class="bg-sky-100 text-sky-700 px-4 py-3 rounded-xl mb-4">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="bg-red-100 text-red-600 px-4 py-3 rounded-xl mb-4">{{ session('error') }}</div>
+    @endif
+
+    {{-- FORM REVIEW --}}
+    @auth
+    <div class="bg-white rounded-2xl p-5 shadow-sm mb-6">
+        <h3 class="font-semibold text-gray-700 mb-4">Tulis Ulasan</h3>
+        <form action="{{ route('reviews.store', $product->id) }}" method="POST">
+            @csrf
+            {{-- RATING BINTANG --}}
+            <div class="flex items-center gap-2 mb-4">
+                <p class="text-sm text-gray-500">Rating:</p>
+                <div class="flex gap-1" id="star-rating">
+                    @for($i = 1; $i <= 5; $i++)
+                    <button type="button" onclick="setRating({{ $i }})"
+                        class="star text-3xl text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer"
+                        data-value="{{ $i }}">★</button>
+                    @endfor
                 </div>
-                <p class="text-sm text-gray-500">{{ $review->comment }}</p>
+                <input type="hidden" name="rating" id="rating-input" value="0">
             </div>
-            @empty
-            <p class="text-gray-400 text-sm">Belum ada ulasan.</p>
-            @endforelse
+            <div class="mb-4">
+                <textarea name="comment" rows="3" placeholder="Tulis ulasanmu di sini..."
+                    class="w-full bg-gray-50 border border-sky-100 rounded-xl px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300"></textarea>
+            </div>
+            <button type="submit"
+                class="bg-sky-300 hover:bg-sky-400 text-white px-6 py-2 rounded-xl font-semibold transition-all">
+                Kirim Ulasan
+            </button>
+        </form>
+    </div>
+    @else
+    <div class="bg-sky-50 rounded-2xl p-4 mb-6 text-center">
+        <p class="text-sm text-gray-500">
+            <a href="{{ route('login') }}" class="text-sky-400 hover:underline font-semibold">Login</a> untuk memberikan ulasan.
+        </p>
+    </div>
+    @endauth
+
+    {{-- DAFTAR ULASAN --}}
+    @forelse($product->reviews as $review)
+    <div class="bg-white rounded-2xl p-5 shadow-sm mb-4">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-sky-200 flex items-center justify-center text-sky-600 font-bold text-sm">
+                    {{ strtoupper(substr($review->user->name, 0, 1)) }}
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700">{{ $review->user->name }}</p>
+                    <div class="flex">
+                        @for($i = 1; $i <= 5; $i++)
+                            <span class="text-sm {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-200' }}">★</span>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+            @if(auth()->check() && auth()->id() === $review->user_id)
+            <form action="{{ route('reviews.destroy', $review->id) }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="text-red-300 hover:text-red-500 text-xs">Hapus</button>
+            </form>
+            @endif
         </div>
+        <p class="text-sm text-gray-500 mt-2">{{ $review->comment }}</p>
+        <p class="text-xs text-gray-300 mt-1">{{ $review->created_at->format('d M Y') }}</p>
+    </div>
+    @empty
+    <p class="text-gray-400 text-sm">Belum ada ulasan.</p>
+    @endforelse
+    </div>
 
-    </main>
-
-    <footer class="bg-white border-t border-sky-100 py-8 text-center text-sm text-gray-400">
-        © 2025 Skinist — keep the barrier safe, let your flawless skin speak.
-    </footer>
-
-<script>
-    const variants = @json($product->variants);
-
-    function selectVariant(id, price, shadeName) {
-        document.getElementById('selected-variant').value = id;
-        const formatted = new Intl.NumberFormat('id-ID').format(price);
-        document.getElementById('product-price').textContent = 'Rp ' + formatted;
-        document.getElementById('shade-name').textContent = shadeName;
-        const variant = variants.find(v => v.id === id);
-        if (variant) {
-            document.getElementById('stock-info').textContent = 'Stok: ' + variant.stock + ' pcs';
-        }
-        document.querySelectorAll('.shade-btn').forEach(btn => {
-            btn.classList.remove('ring-4', 'ring-sky-300', 'ring-offset-2');
+    <script>
+    function setRating(value) 
+    {
+        document.getElementById('rating-input').value = value;
+        document.querySelectorAll('.star').forEach(star => 
+        {
+            if (parseInt(star.dataset.value) <= value) 
+            {
+                star.classList.remove('text-gray-300');
+                star.classList.add('text-yellow-400');
+            } 
+            else 
+            {
+            star.classList.remove('text-yellow-400');
+            star.classList.add('text-gray-300');
+            }
         });
-        event.currentTarget.classList.add('ring-4', 'ring-sky-300', 'ring-offset-2');
     }
-</script>
+    </script>
+
+        </main>
+
+        <footer class="bg-white border-t border-sky-100 py-8 text-center text-sm text-gray-400">
+            © 2025 Skinist — keep the barrier safe, let your flawless skin speak.
+        </footer>
+
+    <script>
+        const variants = @json($product->variants);
+
+        function selectVariant(id, price, shadeName) {
+            document.getElementById('selected-variant').value = id;
+            const formatted = new Intl.NumberFormat('id-ID').format(price);
+            document.getElementById('product-price').textContent = 'Rp ' + formatted;
+            document.getElementById('shade-name').textContent = shadeName;
+            const variant = variants.find(v => v.id === id);
+            if (variant) 
+            {
+                document.getElementById('stock-info').textContent = 'Stok: ' + variant.stock + ' pcs';
+            }
+            document.querySelectorAll('.shade-btn').forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-sky-300', 'ring-offset-2');
+            });
+            event.currentTarget.classList.add('ring-4', 'ring-sky-300', 'ring-offset-2');
+    }
+    </script>
 
 </body>
 </html>
