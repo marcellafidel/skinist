@@ -101,15 +101,12 @@
             <h2 class="text-2xl font-bold text-gray-700">SHOP BY CATEGORIES</h2>
         </div>
         <div class="grid grid-cols-3 gap-6 mb-16">
-            <a href="#" class="rounded-2xl h-48 bg-sky-200 flex items-end p-4 hover:shadow-md transition-all">
-                <span class="text-white font-bold text-lg drop-shadow">skincare</span>
-            </a>
-            <a href="#" class="rounded-2xl h-48 bg-pink-200 flex items-end p-4 hover:shadow-md transition-all">
-                <span class="text-white font-bold text-lg drop-shadow">makeup</span>
-            </a>
-            <a href="#" class="rounded-2xl h-48 bg-rose-200 flex items-end p-4 hover:shadow-md transition-all">
-                <span class="text-white font-bold text-lg drop-shadow">lip</span>
-            </a>
+            @php $categoryColors = ['bg-sky-200', 'bg-pink-200', 'bg-rose-200', 'bg-purple-200', 'bg-green-200', 'bg-yellow-200']; @endphp
+            @foreach(\App\Models\Category::all() as $index => $cat)
+        <a href="{{ route('category.show', $cat->slug) }}" class="rounded-2xl h-48 {{ $categoryColors[$index % count($categoryColors)] }} flex items-end p-4 hover:shadow-md transition-all">
+            <span class="text-white font-bold text-lg drop-shadow">{{ $cat->name }}</span>
+        </a>
+        @endforeach
         </div>
 
     </main>

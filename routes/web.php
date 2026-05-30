@@ -97,4 +97,14 @@ Route::get('/best-seller', function () {
     return view('search', compact('products', 'query'));
 })->name('best.seller');
 
+// Filter by Kategori
+Route::get('/kategori/{slug}', function ($slug) {
+    $category = \App\Models\Category::where('slug', $slug)->firstOrFail();
+    $products = \App\Models\Product::with(['brand', 'variants'])
+                ->where('category_id', $category->id)
+                ->get();
+    $query = $category->name;
+    return view('search', compact('products', 'query'));
+})->name('category.show');
+
 require __DIR__.'/auth.php';
