@@ -97,18 +97,92 @@
         {{-- PRODUCT GRID --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
             @forelse($products ?? [] as $product)
-            <a href="{{ route('products.show', $product->slug) }}" class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 group">
-                <div class="bg-sky-50 rounded-xl p-4 mb-3 flex items-center justify-center h-40">
-                    <div class="text-4xl">🧴</div>
+            <div class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 group relative">
+                <a href="{{ route('products.show', $product->slug) }}">
+                    <div class="bg-sky-50 rounded-xl p-4 mb-3 flex items-center justify-center h-40">
+                        <div class="text-4xl">🧴</div>
+                    </div>
+                    <p class="text-xs text-sky-400 font-semibold">{{ $product->brand->name }}</p>
+                    <p class="text-sm font-semibold text-gray-700 mt-1">{{ $product->name }}</p>
+                    <p class="text-sky-500 font-bold mt-1">Rp {{ number_format($product->variants->first()->price ?? 0, 0, ',', '.') }}</p>
+                </a>
+                {{-- Tombol Add to Cart --}}
+                @auth
+                <button onclick="openShadePopup({{ $product->id }}, {{ $product->variants->toJson() }})"
+                    class="w-full mt-3 bg-sky-100 hover:bg-sky-300 hover:text-white text-sky-500 text-sm font-semibold py-2 rounded-xl transition-all duration-200">
+                    + Add to Cart
+                </button>
+                @endauth
                 </div>
-                <p class="text-xs text-sky-400 font-semibold">{{ $product->brand->name }}</p>
-                <p class="text-sm font-semibold text-gray-700 mt-1">{{ $product->name }}</p>
-                <p class="text-sky-500 font-bold mt-1">Rp {{ number_format($product->variants->first()->price ?? 0, 0, ',', '.') }}</p>
-            </a>
-            @empty
-            <div class="col-span-4 text-center text-gray-400 py-12">Belum ada produk.</div>
-            @endforelse
-        </div>
+                @empty
+                <div class="col-span-4 text-center text-gray-400 py-12">Belum ada produk.</div>
+                @endforelse
+            </div>
+
+            {{-- POPUP SHADE PICKER --}}
+            <div id="shade-popup" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden flex items-center justify-center">
+                <div class="bg-white rounded-3xl p-6 shadow-xl w-80">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-gray-700">Pilih Shade</h3>
+                        <button onclick="closeShadePopup()" class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+                    </div>
+                    <div id="popup-shades" class="flex flex-wrap gap-3 mb-4"></div>
+                    <p id="popup-shade-name" class="text-sm text-sky-400 font-medium mb-4"></p>
+                    <form id="popup-cart-form" action="{{ route('cart.add') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="product_variant_id" id="popup-variant-id">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit"
+                            class="w-full bg-sky-300 hover:bg-sky-400 text-white font-semibold py-3 rounded-2xl transition-all">
+                            🛒 Tambah ke Keranjang
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+            function openShadePopup(productId, variants) {
+                const popup = document.getElementById('shade-popup');
+                const shadesContainer = document.getElementById('popup-shades');
+                const shadeName = document.getElementById('popup-shade-name');
+                const variantId = document.getElementById('popup-variant-id');
+
+                 shadesContainer.innerHTML = '';
+
+                variants.forEach((variant, index) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'w-10 h-10 rounded-full border-4 border-white shadow-md hover:scale-110 transition-transform duration-200';
+                    btn.style.backgroundColor = variant.hex_color;
+                    btn.title = variant.shade_name;
+                    btn.onclick = function() {
+                        variantId.value = variant.id;
+                        shadeName.textContent = variant.shade_name;
+                        document.querySelectorAll('#popup-shades button').forEach(b => {
+                            b.classList.remove('ring-4', 'ring-sky-300', 'ring-offset-2');
+                        });
+                        btn.classList.add('ring-4', 'ring-sky-300', 'ring-offset-2');
+                    };
+                    if (index === 0) {
+                        variantId.value = variant.id;
+                        shadeName.textContent = variant.shade_name;
+                        setTimeout(() => btn.classList.add('ring-4', 'ring-sky-300', 'ring-offset-2'), 10);
+                    }
+                    shadesContainer.appendChild(btn);
+                });
+
+                popup.classList.remove('hidden');
+            }
+
+            function closeShadePopup() {
+                document.getElementById('shade-popup').classList.add('hidden');
+            }
+
+            // Tutup popup kalau klik di luar
+            document.getElementById('shade-popup').addEventListener('click', function(e) {
+                if (e.target === this) closeShadePopup();
+            });
+            </script>
 
         {{-- SHOP BY CATEGORIES --}}
         <div class="text-center mb-8">
