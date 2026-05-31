@@ -13,6 +13,13 @@ class ProductController extends Controller
                           ->with(['brand', 'category', 'variants', 'reviews.user'])
                           ->firstOrFail();
 
-        return view('products.show', compact('product'));
+        // Ambil produk related (kategori sama, kecuali produk ini)
+        $related = Product::where('category_id', $product->category_id)
+                          ->where('id', '!=', $product->id)
+                          ->with(['brand', 'variants'])
+                          ->take(4)
+                          ->get();
+
+        return view('products.show', compact('product', 'related'));
     }
 }

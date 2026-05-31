@@ -103,10 +103,15 @@
                 </div>
 
                 <div id="variants">
-                    <div class="variant-row grid grid-cols-4 gap-3 mb-3">
+                    <div class="variant-row grid grid-cols-5 gap-3 mb-3">
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Nama Shade</label>
-                            <input type="text" name="shade_name[]" placeholder="Cherry Red" required
+                            <input type="text" name="shade_name[]" placeholder="Cherry Red"
+                                class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Size (opsional)</label>
+                            <input type="text" name="size[]" placeholder="50ml, S, M, L"
                                 class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
                         </div>
                         <div>

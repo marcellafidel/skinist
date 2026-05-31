@@ -42,8 +42,8 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'shade_name.*' => 'required|string',
-            'hex_color.*' => 'required|string',
+            'shade_name.*' => 'nullable|string',
+            'hex_color.*' => 'nullable|string',
             'price.*' => 'required|numeric',
             'stock.*' => 'required|integer',
         ]);
@@ -66,6 +66,7 @@ class ProductController extends Controller
             ProductVariant::create([
                 'product_id' => $product->id,
                 'shade_name' => $shade,
+                'size' => $request->size[$i] ?? null,
                 'hex_color' => $request->hex_color[$i],
                 'price' => $request->price[$i],
                 'stock' => $request->stock[$i],

@@ -79,22 +79,40 @@
 
                 <p class="text-gray-500 text-sm leading-relaxed">{{ $product->description }}</p>
 
-                {{-- SHADE PICKER --}}
+                {{-- SHADE / SIZE PICKER --}}
                 <div>
-                    <p class="text-sm font-semibold text-gray-600 mb-3">Pilih Shade:</p>
-                    <div class="flex flex-wrap gap-3">
-                        @foreach($product->variants as $variant)
-                        <button type="button"
-                            onclick="selectVariant({{ $variant->id }}, {{ $variant->price }}, '{{ $variant->shade_name }}')"
-                            class="shade-btn w-10 h-10 rounded-full border-4 border-white shadow-md hover:scale-110 transition-transform duration-200 focus:outline-none"
-                            style="background-color: {{ $variant->hex_color }}"
-                            title="{{ $variant->shade_name }}">
-                        </button>
-                        @endforeach
-                    </div>
-                    <p id="shade-name" class="text-sm text-sky-400 mt-2 font-medium">
-                        {{ $product->variants->first()->shade_name }}
-                    </p>
+                    @if($product->variants->first()->shade_name)
+                        <p class="text-sm font-semibold text-gray-600 mb-3">Pilih Shade:</p>
+                        <div class="flex flex-wrap gap-3">
+                            @foreach($product->variants as $variant)
+                            <button type="button"
+                                onclick="selectVariant({{ $variant->id }}, {{ $variant->price }}, '{{ $variant->shade_name }}', '{{ $variant->size }}')"
+                                class="shade-btn w-10 h-10 rounded-full border-4 border-white shadow-md hover:scale-110 transition-transform duration-200 focus:outline-none"
+                                style="background-color: {{ $variant->hex_color }}"
+                                title="{{ $variant->shade_name }}">
+                            </button>
+                            @endforeach
+                        </div>
+                        <p id="shade-name" class="text-sm text-sky-400 mt-2 font-medium">
+                            {{ $product->variants->first()->shade_name }}
+                        </p>
+                    @endif
+
+                    @if($product->variants->first()->size)
+                        <p class="text-sm font-semibold text-gray-600 mb-3 mt-4">Pilih Size:</p>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($product->variants as $variant)
+                            <button type="button"
+                                onclick="selectVariant({{ $variant->id }}, {{ $variant->price }}, '{{ $variant->shade_name }}', '{{ $variant->size }}')"
+                                class="size-btn px-4 py-2 border-2 border-sky-200 rounded-xl text-sm text-gray-600 hover:border-sky-400 hover:text-sky-500 transition-all duration-200 focus:outline-none">
+                                {{ $variant->size }}
+                            </button>
+                            @endforeach
+                        </div>
+                        <p id="size-name" class="text-sm text-sky-400 mt-2 font-medium">
+                            {{ $product->variants->first()->size }}
+                        </p>
+                    @endif
                 </div>
 
                 {{-- WISHLIST --}}
@@ -128,6 +146,31 @@
 
             </div>
         </div>
+
+        {{-- RELATED PRODUCTS --}}
+        @if($related->count() > 0)
+        <div class="mt-16">
+            <h2 class="text-xl font-bold text-gray-700 mb-6">Produk Serupa</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                @foreach($related as $item)
+                <a href="{{ route('products.show', $item->slug) }}" class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 group">
+                    <div class="bg-sky-50 rounded-xl p-4 mb-3 flex items-center justify-center h-36">
+                        <div class="text-4xl">🧴</div>
+                    </div>
+                    <p class="text-xs text-sky-400 font-semibold">{{ $item->brand->name }}</p>
+                    <p class="text-sm font-semibold text-gray-700 mt-1">{{ $item->name }}</p>
+                    <p class="text-sky-500 font-bold mt-1">Rp {{ number_format($item->variants->first()->price ?? 0, 0, ',', '.') }}</p>
+                    {{-- Shade Colors --}}
+                    <div class="flex gap-1 mt-2">
+                        @foreach($item->variants->take(5) as $variant)
+                        <span class="w-4 h-4 rounded-full border border-white shadow-sm" style="background-color: {{ $variant->hex_color }}"></span>
+                        @endforeach
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
         {{-- ULASAN --}}
         <div class="mt-16">
@@ -217,19 +260,37 @@
 <script>
     const variants = @json($product->variants);
 
-    function selectVariant(id, price, shadeName) {
-        document.getElementById('selected-variant').value = id;
-        const formatted = new Intl.NumberFormat('id-ID').format(price);
-        document.getElementById('product-price').textContent = 'Rp ' + formatted;
+    function selectVariant(id, price, shadeName, sizeName) {
+    document.getElementById('selected-variant').value = id;
+    const formatted = new Intl.NumberFormat('id-ID').format(price);
+    document.getElementById('product-price').textContent = 'Rp ' + formatted;
+    
+    if (shadeName && document.getElementById('shade-name')) {
         document.getElementById('shade-name').textContent = shadeName;
-        const variant = variants.find(v => v.id === id);
-        if (variant) {
-            document.getElementById('stock-info').textContent = 'Stok: ' + variant.stock + ' pcs';
-        }
-        document.querySelectorAll('.shade-btn').forEach(btn => {
-            btn.classList.remove('ring-4', 'ring-sky-300', 'ring-offset-2');
-        });
+    }
+    if (sizeName && document.getElementById('size-name')) {
+        document.getElementById('size-name').textContent = sizeName;
+    }
+    
+    const variant = variants.find(v => v.id === id);
+    if (variant) {
+        document.getElementById('stock-info').textContent = 'Stok: ' + variant.stock + ' pcs';
+    }
+    
+    document.querySelectorAll('.shade-btn').forEach(btn => {
+        btn.classList.remove('ring-4', 'ring-sky-300', 'ring-offset-2');
+    });
+    document.querySelectorAll('.size-btn').forEach(btn => {
+        btn.classList.remove('border-sky-400', 'text-sky-500', 'bg-sky-50');
+        btn.classList.add('border-sky-200');
+    });
+    
+    if (event.currentTarget.classList.contains('shade-btn')) {
         event.currentTarget.classList.add('ring-4', 'ring-sky-300', 'ring-offset-2');
+    } else {
+        event.currentTarget.classList.remove('border-sky-200');
+        event.currentTarget.classList.add('border-sky-400', 'text-sky-500', 'bg-sky-50');
+    }
     }
 
     function setRating(value) {
