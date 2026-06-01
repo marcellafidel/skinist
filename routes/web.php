@@ -83,6 +83,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/coupons', [AdminController::class, 'coupons'])->name('admin.coupons');
     Route::post('/admin/coupons', [AdminController::class, 'storeCoupon'])->name('admin.coupons.store');
     Route::delete('/admin/coupons/{id}', [AdminController::class, 'destroyCoupon'])->name('admin.coupons.destroy');
+    Route::get('/admin/products/{id}/edit', [\App\Http\Controllers\Admin\ProductController::class, 'edit'])->name('admin.products.edit');
+    Route::put('/admin/products/{id}', [\App\Http\Controllers\Admin\ProductController::class, 'update'])->name('admin.products.update');
+    Route::put('/admin/variants/{id}', [\App\Http\Controllers\Admin\ProductController::class, 'updateVariant'])->name('admin.variants.update');
+    Route::post('/admin/products/{id}/variants', [\App\Http\Controllers\Admin\ProductController::class, 'storeVariant'])->name('admin.variants.store');
 });
 
 // Search
