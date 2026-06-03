@@ -27,11 +27,16 @@ Route::get('/', function () {
         $products = $products->latest()->get();
     }
 
+    $newArrivals = \App\Models\Product::with(['brand', 'variants'])
+                    ->latest()
+                    ->take(8)
+                    ->get();
+
     $featuredProduct = \App\Models\Product::with(['brand', 'variants'])
                         ->latest()
                         ->first();
 
-    return view('welcome', compact('products', 'sort', 'featuredProduct'));
+    return view('welcome', compact('products', 'sort', 'featuredProduct', 'newArrivals'));
 });
 
 Route::get('/dashboard', function () {
