@@ -76,13 +76,30 @@
     <main class="max-w-7xl mx-auto px-4 py-8">
 
         {{-- HERO --}}
-        <div class="rounded-3xl overflow-hidden mb-12 bg-sky-100 px-12 py-16 flex items-center justify-between">
-            <div>
-                <p class="text-sky-400 text-sm font-semibold tracking-widest uppercase mb-2">New Arrival</p>
-                <h1 class="text-4xl font-bold text-gray-700 mb-4">keep the barrier safe<br>let your flawless<br>skin speak</h1>
-                <a href="{{ route('new.arrival') }}" class="bg-sky-300 hover:bg-sky-400 text-white px-8 py-3 rounded-full font-semibold transition-all">Shop Now</a>
+        <div class="rounded-3xl overflow-hidden mb-12 bg-gradient-to-r from-sky-100 to-sky-50 flex items-center justify-between min-h-72 relative">
+            {{-- Foto Produk di kiri --}}
+            <div class="w-1/2 h-72 flex items-end justify-center overflow-hidden">
+                @if($featuredProduct && $featuredProduct->thumbnail)
+                    <img src="{{ asset('storage/' . $featuredProduct->thumbnail) }}"
+                        class="h-72 object-cover object-top">
+                @else
+                    <div class="text-9xl pb-4">🧴</div>
+                @endif
             </div>
-            <div class="text-8xl font-bold text-sky-200 opacity-50 select-none">Skinist</div>
+
+            {{-- Teks di kanan --}}
+            <div class="w-1/2 px-10 py-12">
+                <p class="text-sky-400 text-xs font-semibold tracking-widest uppercase mb-2">New Arrival</p>
+                <h1 class="text-3xl font-bold text-gray-700 mb-2">{{ $featuredProduct->name ?? 'Skinist' }}</h1>
+                <p class="text-sky-400 text-sm font-semibold mb-3">{{ $featuredProduct->brand->name ?? '' }}</p>
+                <p class="text-gray-500 text-sm mb-6 leading-relaxed">{{ Str::limit($featuredProduct->description ?? 'keep the barrier safe, let your flawless skin speak', 100) }}</p>
+                @if($featuredProduct)
+                <a href="{{ route('products.show', $featuredProduct->slug) }}"
+                    class="bg-sky-300 hover:bg-sky-400 text-white px-8 py-3 rounded-full font-semibold transition-all inline-block">
+                    Shop Now →
+                </a>
+                @endif
+            </div>
         </div>
 
         {{-- CHOOSE YOUR FAVS --}}

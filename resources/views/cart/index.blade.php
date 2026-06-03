@@ -31,6 +31,16 @@
 
     <main class="max-w-4xl mx-auto px-4 py-8">
 
+        {{-- TOMBOL KEMBALI KE BERANDA --}}
+        <div class="mb-6">
+            <a href="/" class="inline-flex items-center gap-2 bg-white border border-sky-200 text-sky-500 hover:bg-sky-50 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Kembali Belanja
+            </a>
+        </div>
+
         <h1 class="text-2xl font-bold text-gray-700 mb-8">🛒 Keranjang Belanja</h1>
 
         @if(session('success'))
