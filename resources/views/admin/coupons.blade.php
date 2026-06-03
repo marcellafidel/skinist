@@ -17,6 +17,8 @@
                 <a href="{{ route('admin.brands') }}" class="text-sm text-sky-500 hover:underline">Brand</a>
                 <a href="{{ route('admin.categories') }}" class="text-sm text-sky-500 hover:underline">Kategori</a>
                 <a href="{{ route('admin.coupons') }}" class="text-sm text-sky-500 hover:underline font-bold">Kupon</a>
+                <a href="{{ route('admin.laporan') }}" class="text-sm text-sky-500 hover:underline">Laporan Keuangan</a>
+                <a href="{{ route('admin.stok') }}" class="text-sm text-sky-500 hover:underline">Histori Stok</a>
                 <span class="text-sm bg-sky-100 text-sky-600 px-3 py-1 rounded-full font-semibold">Admin Panel</span>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

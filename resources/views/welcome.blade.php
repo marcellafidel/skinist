@@ -87,7 +87,6 @@
                 </div>
                 <a href="{{ route('best.seller') }}" class="hover:text-sky-500">Best Seller</a>
                 <a href="{{ route('new.arrival') }}" class="hover:text-sky-500">New Arrival</a>
-                <a href="#" class="hover:text-sky-500">Best Deals</a>
             </div>
         </div>
     </nav>
@@ -273,7 +272,7 @@
     </main>
 
     <footer class="bg-white border-t border-sky-100 pt-12 pb-6 text-sm text-gray-500">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-3 gap-24 mb-10">
 
         {{-- Brand --}}
         <div data-aos="fade-up">

@@ -96,6 +96,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/products/{id}', [\App\Http\Controllers\Admin\ProductController::class, 'update'])->name('admin.products.update');
     Route::put('/admin/variants/{id}', [\App\Http\Controllers\Admin\ProductController::class, 'updateVariant'])->name('admin.variants.update');
     Route::post('/admin/products/{id}/variants', [\App\Http\Controllers\Admin\ProductController::class, 'storeVariant'])->name('admin.variants.store');
+    Route::get('/admin/laporan-keuangan', [AdminController::class, 'laporanKeuangan'])->name('admin.laporan');
+    Route::get('/admin/histori-stok', [AdminController::class, 'historiStok'])->name('admin.stok');
+    Route::post('/admin/stok/tambah', [AdminController::class, 'tambahStok'])->name('admin.stok.tambah');
 });
 
 // Search

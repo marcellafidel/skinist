@@ -22,4 +22,9 @@ class ProductVariant extends Model
     {
         return $this->hasMany(OrderDetail::class);
     }
+
+    public function stockHistories()
+    {
+        return $this->hasMany(StockHistory::class, 'product_variant_id');
+    }
 }

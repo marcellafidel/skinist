@@ -135,4 +135,56 @@ class AdminController extends Controller
         \App\Models\Coupon::findOrFail($id)->delete();
         return back()->with('success', 'Kupon berhasil dihapus!');
     }
+
+public function laporanKeuangan()
+{
+    $this->checkAdmin();
+    $orders = Order::with(['user', 'details'])
+                ->whereIn('status', ['paid', 'shipped', 'delivered'])
+                ->latest()
+                ->get();
+
+    $totalPendapatan = $orders->sum('total_price');
+    $totalOrder = $orders->count();
+    $pendapatanPerBulan = $orders->groupBy(fn($o) => $o->created_at->format('Y-m'))
+                ->map(fn($group) => $group->sum('total_price'));
+
+    return view('admin.laporan-keuangan', compact('orders', 'totalPendapatan', 'totalOrder', 'pendapatanPerBulan'));
+}
+
+public function historiStok()
+{
+    $this->checkAdmin();
+    $products = \App\Models\Product::with(['variants.stockHistories', 'brand'])->latest()->get();
+    $variants = \App\Models\ProductVariant::with('product')->get();
+    return view('admin.histori-stok', compact('products', 'variants'));
+}
+
+public function tambahStok(Request $request)
+{
+    $this->checkAdmin();
+    $request->validate([
+        'product_variant_id' => 'required|exists:product_variants,id',
+        'jumlah' => 'required|integer|min:1',
+        'tipe' => 'required|in:masuk,keluar',
+        'keterangan' => 'nullable|string',
+    ]);
+
+    $variant = \App\Models\ProductVariant::findOrFail($request->product_variant_id);
+
+    if ($request->tipe === 'masuk') {
+        $variant->increment('stock', $request->jumlah);
+    } else {
+        $variant->decrement('stock', $request->jumlah);
+    }
+
+    \App\Models\StockHistory::create([
+        'product_variant_id' => $request->product_variant_id,
+        'jumlah' => $request->jumlah,
+        'tipe' => $request->tipe,
+        'keterangan' => $request->keterangan,
+    ]);
+
+    return back()->with('success', 'Stok berhasil diupdate!');
+}
 }
