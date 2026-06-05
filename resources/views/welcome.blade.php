@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Skinist — Beauty Store</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -68,7 +69,6 @@
                         @endforeach
                     </div>
                 </div>
-
                 <div class="relative group">
                     <a href="#" class="hover:text-sky-500 flex items-center gap-1">Brands
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -164,16 +164,15 @@
                     class="w-full mt-3 bg-sky-100 hover:bg-sky-300 hover:text-white text-sky-500 text-sm font-semibold py-2 rounded-xl transition-all duration-200">
                     + Add to Cart
                 </button>
-                <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST" class="mt-2">
-                    @csrf
-                    @php
-                        $inWishlist = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
-                    @endphp
-                    <button type="submit"
-                        class="w-full border {{ $inWishlist ? 'border-red-300 text-red-400 hover:bg-red-50' : 'border-sky-200 text-sky-400 hover:bg-sky-50' }} text-sm font-semibold py-2 rounded-xl transition-all duration-200">
-                        {{ $inWishlist ? '❤️ Wishlisted' : '🤍 Wishlist' }}
-                    </button>
-                </form>
+                @php
+                    $inWishlist = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
+                @endphp
+                <button
+                    onclick="toggleWishlist(this, {{ $product->id }})"
+                    data-wishlisted="{{ $inWishlist ? 'true' : 'false' }}"
+                    class="wishlist-btn w-full border {{ $inWishlist ? 'border-red-300 text-red-400 hover:bg-red-50' : 'border-sky-200 text-sky-400 hover:bg-sky-50' }} text-sm font-semibold py-2 rounded-xl transition-all duration-200 mt-2">
+                    {{ $inWishlist ? '❤️ Wishlisted' : '🤍 Wishlist' }}
+                </button>
                 @endauth
             </div>
             @empty
@@ -203,16 +202,15 @@
                     class="w-full mt-3 bg-sky-100 hover:bg-sky-300 hover:text-white text-sky-500 text-sm font-semibold py-2 rounded-xl transition-all duration-200">
                     + Add to Cart
                 </button>
-                <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST" class="mt-2">
-                    @csrf
-                    @php
-                        $inWishlist = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
-                    @endphp
-                    <button type="submit"
-                        class="w-full border {{ $inWishlist ? 'border-red-300 text-red-400 hover:bg-red-50' : 'border-sky-200 text-sky-400 hover:bg-sky-50' }} text-sm font-semibold py-2 rounded-xl transition-all duration-200">
-                        {{ $inWishlist ? '❤️ Wishlisted' : '🤍 Wishlist' }}
-                    </button>
-                </form>
+                @php
+                    $inWishlist = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
+                @endphp
+                <button
+                    onclick="toggleWishlist(this, {{ $product->id }})"
+                    data-wishlisted="{{ $inWishlist ? 'true' : 'false' }}"
+                    class="wishlist-btn w-full border {{ $inWishlist ? 'border-red-300 text-red-400 hover:bg-red-50' : 'border-sky-200 text-sky-400 hover:bg-sky-50' }} text-sm font-semibold py-2 rounded-xl transition-all duration-200 mt-2">
+                    {{ $inWishlist ? '❤️ Wishlisted' : '🤍 Wishlist' }}
+                </button>
                 @endauth
             </div>
             @empty
@@ -229,109 +227,93 @@
                 </div>
                 <div id="popup-shades" class="flex flex-wrap gap-3 mb-4"></div>
                 <p id="popup-shade-name" class="text-sm text-sky-400 font-medium mb-4"></p>
-                <form id="popup-cart-form" action="{{ route('cart.add') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="product_variant_id" id="popup-variant-id">
-                    <input type="hidden" name="quantity" value="1">
-                    <button type="submit"
-                        class="w-full bg-sky-300 hover:bg-sky-400 text-white font-semibold py-3 rounded-2xl transition-all">
-                        🛒 Tambah ke Keranjang
-                    </button>
-                </form>
+                <input type="hidden" id="popup-variant-id">
+                <button type="button" onclick="submitCart(this)"
+                    class="w-full bg-sky-300 hover:bg-sky-400 text-white font-semibold py-3 rounded-2xl transition-all">
+                    🛒 Tambah ke Keranjang
+                </button>
             </div>
         </div>
 
         {{-- SHOP BY CATEGORIES --}}
-    <div class="text-center mb-8" data-aos="fade-up">
-        <h2 class="text-2xl font-bold text-gray-700">SHOP BY CATEGORIES</h2>
-    </div>
-    <div class="grid grid-cols-3 gap-6 mb-16">
-        @foreach(\App\Models\Category::whereNotIn('name', ['Lip'])->get() as $index => $cat)
-        @php
-            $categoryImages = [
-                'Skincare' => 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&q=80',
-                'Makeup'   => 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80',
-                'Brush' => 'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=600&q=80',
-            ];
-            $key = $cat->name;
-            $img = $categoryImages[$key] ?? null;
-            $categoryColors = ['bg-sky-200', 'bg-pink-200', 'bg-rose-200', 'bg-purple-200', 'bg-green-200', 'bg-yellow-200'];
-        @endphp
-        <a data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}"
-            href="{{ route('category.show', $cat->slug) }}"
-            class="rounded-2xl h-48 overflow-hidden relative flex items-end p-4 hover:shadow-md transition-all {{ !$img ? $categoryColors[$loop->index % count($categoryColors)] : '' }}">
-            @if($img)
-                <img src="{{ $img }}" class="absolute inset-0 w-full h-full object-cover">
-                <div class="absolute inset-0 bg-black bg-opacity-30 rounded-2xl"></div>
-            @endif
-            <span class="relative text-white font-bold text-lg drop-shadow">{{ $cat->name }}</span>
-        </a>
-        @endforeach
-    </div>
+        <div class="text-center mb-8" data-aos="fade-up">
+            <h2 class="text-2xl font-bold text-gray-700">SHOP BY CATEGORIES</h2>
+        </div>
+        <div class="grid grid-cols-3 gap-6 mb-16">
+            @foreach(\App\Models\Category::whereNotIn('name', ['Lip'])->get() as $index => $cat)
+            @php
+                $categoryImages = [
+                    'Skincare' => 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&q=80',
+                    'Makeup'   => 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80',
+                    'Brush'    => 'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=600&q=80',
+                ];
+                $key = $cat->name;
+                $img = $categoryImages[$key] ?? null;
+                $categoryColors = ['bg-sky-200', 'bg-pink-200', 'bg-rose-200', 'bg-purple-200', 'bg-green-200', 'bg-yellow-200'];
+            @endphp
+            <a data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}"
+                href="{{ route('category.show', $cat->slug) }}"
+                class="rounded-2xl h-48 overflow-hidden relative flex items-end p-4 hover:shadow-md transition-all {{ !$img ? $categoryColors[$loop->index % count($categoryColors)] : '' }}">
+                @if($img)
+                    <img src="{{ $img }}" class="absolute inset-0 w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-30 rounded-2xl"></div>
+                @endif
+                <span class="relative text-white font-bold text-lg drop-shadow">{{ $cat->name }}</span>
+            </a>
+            @endforeach
+        </div>
 
     </main>
 
     <footer class="bg-white border-t border-sky-100 pt-12 pb-6 text-sm text-gray-500">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-3 gap-24 mb-10">
-
-        {{-- Brand --}}
-        <div data-aos="fade-up">
-            <a href="/" class="text-2xl font-bold text-sky-400 tracking-widest">Skinist</a>
-            <p class="mt-3 text-gray-400 text-sm leading-relaxed">keep the barrier safe,<br>let your flawless skin speak.</p>
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-3 gap-24 mb-10">
+            <div data-aos="fade-up">
+                <a href="/" class="text-2xl font-bold text-sky-400 tracking-widest">Skinist</a>
+                <p class="mt-3 text-gray-400 text-sm leading-relaxed">keep the barrier safe,<br>let your flawless skin speak.</p>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="100">
+                <h4 class="font-bold text-gray-600 mb-4 text-base">Contact Us</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li class="flex items-center gap-2">
+                        <span>📱</span>
+                        <a href="https://wa.me/087646787534245" target="_blank" class="hover:text-sky-400 transition">087646787534245</a>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span>✉️</span>
+                        <a href="mailto:cs.skinist@gmail.com" class="hover:text-sky-400 transition">cs.skinist@gmail.com</a>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span>📍</span>
+                        <span>Jl. Apalo</span>
+                    </li>
+                </ul>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="200">
+                <h4 class="font-bold text-gray-600 mb-4 text-base">Follow Us</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li class="flex items-center gap-2">
+                        <span>📸</span>
+                        <a href="https://instagram.com/skinist" target="_blank" class="hover:text-sky-400 transition">@skinist</a>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span>🎵</span>
+                        <a href="https://tiktok.com/@skinist" target="_blank" class="hover:text-sky-400 transition">@skinist</a>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span>🐦</span>
+                        <a href="https://twitter.com/skinist" target="_blank" class="hover:text-sky-400 transition">@skinist</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-
-        {{-- Contact --}}
-        <div data-aos="fade-up" data-aos-delay="100">
-            <h4 class="font-bold text-gray-600 mb-4 text-base">Contact Us</h4>
-            <ul class="space-y-2 text-gray-400">
-                <li class="flex items-center gap-2">
-                    <span>📱</span>
-                    <a href="https://wa.me/087646787534245" target="_blank" class="hover:text-sky-400 transition">087646787534245</a>
-                </li>
-                <li class="flex items-center gap-2">
-                    <span>✉️</span>
-                    <a href="mailto:cs.skinist@gmail.com" class="hover:text-sky-400 transition">cs.skinist@gmail.com</a>
-                </li>
-                <li class="flex items-center gap-2">
-                    <span>📍</span>
-                    <span>Jl. Apalo</span>
-                </li>
-            </ul>
+        <div class="border-t border-sky-100 pt-6 text-center text-gray-400 text-xs">
+            © 2025 Skinist — All rights reserved.
         </div>
-
-        {{-- Sosmed --}}
-        <div data-aos="fade-up" data-aos-delay="200">
-            <h4 class="font-bold text-gray-600 mb-4 text-base">Follow Us</h4>
-            <ul class="space-y-2 text-gray-400">
-                <li class="flex items-center gap-2">
-                    <span>📸</span>
-                    <a href="https://instagram.com/skinist" target="_blank" class="hover:text-sky-400 transition">@skinist</a>
-                </li>
-                <li class="flex items-center gap-2">
-                    <span>🎵</span>
-                    <a href="https://tiktok.com/@skinist" target="_blank" class="hover:text-sky-400 transition">@skinist</a>
-                </li>
-                <li class="flex items-center gap-2">
-                    <span>🐦</span>
-                    <a href="https://twitter.com/skinist" target="_blank" class="hover:text-sky-400 transition">@skinist</a>
-                </li>
-            </ul>
-        </div>
-
-    </div>
-
-    <div class="border-t border-sky-100 pt-6 text-center text-gray-400 text-xs">
-        © 2025 Skinist — All rights reserved.
-    </div>
-</footer>
+    </footer>
 
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
-    AOS.init({
-        duration: 700,
-        once: true,
-        offset: 80,
-    });
+    AOS.init({ duration: 700, once: true, offset: 80 });
 </script>
 
 <script>
@@ -340,9 +322,7 @@ function openShadePopup(productId, variants) {
     const shadesContainer = document.getElementById('popup-shades');
     const shadeName = document.getElementById('popup-shade-name');
     const variantId = document.getElementById('popup-variant-id');
-
     shadesContainer.innerHTML = '';
-
     variants.forEach((variant, index) => {
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -364,7 +344,6 @@ function openShadePopup(productId, variants) {
         }
         shadesContainer.appendChild(btn);
     });
-
     popup.classList.remove('hidden');
 }
 
@@ -381,7 +360,6 @@ function switchTab(tab) {
     const naGrid = document.getElementById('grid-newarrival');
     const bsTab = document.getElementById('tab-bestseller');
     const naTab = document.getElementById('tab-newarrival');
-
     if (tab === 'bestseller') {
         bsGrid.style.display = 'grid';
         naGrid.style.display = 'none';
@@ -397,6 +375,68 @@ function switchTab(tab) {
         bsTab.classList.remove('text-sky-400', 'font-semibold', 'border-b-2', 'border-sky-400');
         bsTab.classList.add('text-gray-400');
     }
+}
+
+function toggleWishlist(btn, productId) {
+    fetch(`/wishlist/${productId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        const wishlisted = btn.dataset.wishlisted === 'true';
+        if (wishlisted) {
+            btn.dataset.wishlisted = 'false';
+            btn.textContent = '🤍 Wishlist';
+            btn.className = 'wishlist-btn w-full border border-sky-200 text-sky-400 hover:bg-sky-50 text-sm font-semibold py-2 rounded-xl transition-all duration-200 mt-2';
+        } else {
+            btn.dataset.wishlisted = 'true';
+            btn.textContent = '❤️ Wishlisted';
+            btn.className = 'wishlist-btn w-full border border-red-300 text-red-400 hover:bg-red-50 text-sm font-semibold py-2 rounded-xl transition-all duration-200 mt-2';
+        }
+    });
+}
+
+function submitCart(btn) {
+    const variantId = document.getElementById('popup-variant-id').value;
+
+    btn.textContent = '⏳ Menambahkan...';
+    btn.disabled = true;
+
+    fetch('{{ route("cart.add") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            product_variant_id: variantId,
+            quantity: 1,
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            btn.textContent = '✅ Ditambahkan!';
+            setTimeout(() => {
+                closeShadePopup();
+                btn.textContent = '🛒 Tambah ke Keranjang';
+                btn.disabled = false;
+            }, 1000);
+        } else {
+            btn.textContent = '❌ ' + (data.error ?? 'Gagal!');
+            btn.disabled = false;
+        }
+    })
+    .catch(() => {
+        btn.textContent = '❌ Gagal!';
+        btn.disabled = false;
+    });
 }
 </script>
 

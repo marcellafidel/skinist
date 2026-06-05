@@ -23,13 +23,19 @@ class WishlistController extends Controller
 
         if ($existing) {
             $existing->delete();
-            return back()->with('success', 'Produk dihapus dari wishlist!');
+            $wishlisted = false;
         } else {
             Wishlist::create([
                 'user_id' => auth()->id(),
                 'product_id' => $productId,
             ]);
-            return back()->with('success', 'Produk ditambahkan ke wishlist!');
+            $wishlisted = true;
         }
+
+        if (request()->wantsJson()) {
+            return response()->json(['wishlisted' => $wishlisted]);
+        }
+
+        return back()->with('success', $wishlisted ? 'Produk ditambahkan ke wishlist!' : 'Produk dihapus dari wishlist!');
     }
 }

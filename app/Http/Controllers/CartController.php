@@ -17,26 +17,29 @@ class CartController extends Controller
 
         $variant = ProductVariant::findOrFail($request->product_variant_id);
 
-        // Cek stok cukup atau tidak
         if ($variant->stock < $request->quantity) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'Stok tidak mencukupi!'], 422);
+            }
             return back()->with('error', 'Stok tidak mencukupi!');
         }
 
-        // Cek apakah varian yang sama sudah ada di keranjang
         $cart = Cart::where('user_id', auth()->id())
                     ->where('product_variant_id', $request->product_variant_id)
                     ->first();
 
         if ($cart) {
-            // Kalau sudah ada, tambah quantity-nya
             $cart->increment('quantity', $request->quantity);
         } else {
-            // Kalau belum ada, buat baru
             Cart::create([
                 'user_id' => auth()->id(),
                 'product_variant_id' => $request->product_variant_id,
                 'quantity' => $request->quantity,
             ]);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
         }
 
         return back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');

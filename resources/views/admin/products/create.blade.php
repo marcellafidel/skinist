@@ -17,6 +17,8 @@
             <a href="{{ route('admin.brands') }}" class="text-sm text-sky-500 hover:underline">Brand</a>
             <a href="{{ route('admin.categories') }}" class="text-sm text-sky-500 hover:underline">Kategori</a>
             <a href="{{ route('admin.coupons') }}" class="text-sm text-sky-500 hover:underline">Kupon</a>
+            <a href="{{ route('admin.laporan') }}" class="text-sm text-sky-500 hover:underline">Laporan Keuangan</a>
+            <a href="{{ route('admin.stok') }}" class="text-sm text-sky-500 hover:underline">Histori Stok</a>
             <span class="text-sm bg-sky-100 text-sky-600 px-3 py-1 rounded-full font-semibold">Admin Panel</span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -93,87 +95,69 @@
             </div>
 
             {{-- VARIAN --}}
-            <div class="bg-white rounded-3xl shadow-sm p-6 mb-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold text-gray-700">🎨 Varian Shade</h2>
-                    <button type="button" onclick="addVariant()"
-                        class="bg-sky-100 hover:bg-sky-200 text-sky-600 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
-                        + Tambah Shade
-                    </button>
-                </div>
-
-                <div id="variants">
-                    <div class="variant-row grid grid-cols-5 gap-3 mb-3">
-                        <div>
-                            <label class="text-xs text-gray-400 mb-1 block">Nama Shade</label>
-                            <input type="text" name="shade_name[]" placeholder="Cherry Red"
-                                class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400 mb-1 block">Size (opsional)</label>
-                            <input type="text" name="size[]" placeholder="50ml, S, M, L"
-                                class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400 mb-1 block">Warna (Hex)</label>
-                            <input type="color" name="hex_color[]" value="#C0392B"
-                                class="w-full h-10 bg-gray-50 border border-sky-100 rounded-xl px-2 cursor-pointer">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400 mb-1 block">Harga</label>
-                            <input type="number" name="price[]" placeholder="150000" required
-                                class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400 mb-1 block">Stok</label>
-                            <input type="number" name="stock[]" placeholder="50" required
-                                class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
-                        </div>
-                    </div>
-                </div>
+        <div class="bg-white rounded-3xl shadow-sm p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-gray-700">🎨 Varian</h2>
+                <button type="button" onclick="addVariant()"
+                    class="bg-sky-100 hover:bg-sky-200 text-sky-600 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                    + Tambah
+                </button>
             </div>
+            <div id="variants"></div>
+        </div>
 
-            <button type="submit"
-                class="w-full bg-sky-300 hover:bg-sky-400 text-white font-semibold py-4 rounded-2xl text-lg transition-all duration-200">
-                Simpan Produk
-            </button>
-        </form>
+        <button type="submit"
+            class="w-full bg-sky-300 hover:bg-sky-400 text-white font-semibold py-4 rounded-2xl text-lg transition-all duration-200">
+            Simpan Produk
+        </button>
+    </form>
 
-    </main>
+</main>
 
-    <footer class="bg-white border-t border-sky-100 py-8 text-center text-sm text-gray-400 mt-16">
-        © 2025 Skinist Admin Panel
-    </footer>
+<footer class="bg-white border-t border-sky-100 py-8 text-center text-sm text-gray-400 mt-16">
+    © 2025 Skinist Admin Panel
+</footer>
 
 <script>
 function addVariant() {
     const container = document.getElementById('variants');
     const row = document.createElement('div');
-    row.className = 'variant-row grid grid-cols-4 gap-3 mb-3';
+    row.className = 'variant-row grid grid-cols-6 gap-3 mb-3 items-end';
+
+    const uniqueId = 'color_' + Date.now();
+
     row.innerHTML = `
-        <div>
-            <label class="text-xs text-gray-400 mb-1 block">Nama Shade</label>
-            <input type="text" name="shade_name[]" placeholder="Nude Pink" required
-                class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
-        </div>
-        <div>
-            <label class="text-xs text-gray-400 mb-1 block">Warna (Hex)</label>
-            <input type="color" name="hex_color[]" value="#E8A598"
-                class="w-full h-10 bg-gray-50 border border-sky-100 rounded-xl px-2 cursor-pointer">
-        </div>
-        <div>
-            <label class="text-xs text-gray-400 mb-1 block">Harga</label>
-            <input type="number" name="price[]" placeholder="150000" required
-                class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
-        </div>
-        <div>
-            <label class="text-xs text-gray-400 mb-1 block">Stok</label>
-            <input type="number" name="stock[]" placeholder="50" required
-                class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
-        </div>
-    `;
+    <div>
+        <label class="text-xs text-gray-400 mb-1 block">Nama</label>
+        <input type="text" name="shade_name[]" placeholder="Cherry Red"
+            class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
+    </div>
+    <div>
+        <label class="text-xs text-gray-400 mb-1 block">Size</label>
+        <input type="text" name="size[]" placeholder="50ml"
+            class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
+    </div>
+    <div>
+        <label class="text-xs text-gray-400 mb-1 block">Harga</label>
+        <input type="number" name="price[]" placeholder="150000"
+            class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
+    </div>
+    <div>
+        <label class="text-xs text-gray-400 mb-1 block">Stok</label>
+        <input type="number" name="stock[]" placeholder="50"
+            class="w-full bg-gray-50 border border-sky-100 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
+    </div>
+    <div>
+        <button type="button" onclick="this.closest('.variant-row').remove()"
+            class="w-full bg-red-100 hover:bg-red-200 text-red-400 px-3 py-2 rounded-xl text-sm font-semibold transition-all">
+            Hapus
+        </button>
+    </div>
+`;
     container.appendChild(row);
 }
+
+addVariant();
 </script>
 
 </body>
