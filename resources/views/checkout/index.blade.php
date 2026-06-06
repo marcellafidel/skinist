@@ -5,145 +5,339 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout — Skinist</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-sky-50 text-gray-800">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #F0F7FF; color: #1A3A5C; margin: 0; }
+        .font-display { font-family: 'Cormorant Garamond', serif; }
 
-    <nav class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <a href="/" class="text-2xl font-bold text-sky-400 tracking-widest">Skinist</a>
-            <div class="flex items-center gap-4">
-                <span class="text-sm text-sky-500">Hi, {{ auth()->user()->name }}</span>
+        .navbar {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(91,184,245,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        /* STEPS */
+        .steps {
+            display: flex; align-items: center; gap: 0;
+            font-size: 0.75rem; letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .step {
+            display: flex; align-items: center; gap: 8px;
+            color: #BFDFFF; font-weight: 400;
+        }
+        .step.active { color: #1A3A5C; font-weight: 500; }
+        .step.done { color: #5BB8F5; }
+        .step-num {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: #E3F2FD; color: #5A7FA0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 600;
+        }
+        .step.active .step-num { background: #1A3A5C; color: white; }
+        .step.done .step-num { background: #5BB8F5; color: white; }
+        .step-arrow { color: #BFDFFF; margin: 0 12px; font-size: 0.9rem; }
+
+        /* CARD */
+        .card {
+            background: white; border-radius: 20px;
+            border: 1px solid rgba(91,184,245,0.08);
+            padding: 28px;
+        }
+
+        .card-title {
+            font-size: 0.72rem; letter-spacing: 0.15em;
+            text-transform: uppercase; color: #5A7FA0;
+            font-weight: 500; margin-bottom: 20px;
+        }
+
+        /* INPUT */
+        .input-group { margin-bottom: 16px; }
+        .input-label {
+            font-size: 0.72rem; letter-spacing: 0.1em;
+            text-transform: uppercase; color: #5A7FA0;
+            font-weight: 500; margin-bottom: 7px; display: block;
+        }
+        .input-field {
+            width: 100%; background: #F0F7FF;
+            border: 1.5px solid transparent; border-radius: 12px;
+            padding: 12px 16px; font-size: 0.88rem;
+            color: #1A3A5C; font-family: 'DM Sans', sans-serif;
+            transition: all 0.25s ease;
+        }
+        .input-field:focus { outline: none; border-color: #5BB8F5; background: white; box-shadow: 0 0 0 4px rgba(91,184,245,0.1); }
+        .input-field:disabled { color: #5A7FA0; cursor: not-allowed; }
+        .input-field::placeholder { color: #5A7FA0; opacity: 0.6; }
+
+        textarea.input-field { resize: none; }
+
+        .error-msg { font-size: 0.75rem; color: #e05c5c; margin-top: 6px; }
+
+        /* COUPON */
+        .coupon-active {
+            background: rgba(91,184,245,0.08); border: 1px solid rgba(91,184,245,0.25);
+            border-radius: 12px; padding: 12px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .coupon-active-label { font-size: 0.82rem; color: #1A3A5C; font-weight: 500; }
+        .coupon-remove { font-size: 0.75rem; color: #e05c5c; text-decoration: none; transition: opacity 0.2s; }
+        .coupon-remove:hover { opacity: 0.7; }
+
+        .coupon-input-wrap { display: flex; gap: 10px; }
+        .btn-coupon {
+            background: #E3F2FD; color: #1A3A5C; border: none;
+            padding: 12px 20px; border-radius: 12px;
+            font-size: 0.82rem; font-weight: 500; cursor: pointer;
+            font-family: 'DM Sans', sans-serif; white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .btn-coupon:hover { background: #5BB8F5; color: white; }
+
+        /* BTN SUBMIT */
+        .btn-submit {
+            width: 100%; background: #1A3A5C; color: white;
+            border: none; padding: 15px; border-radius: 14px;
+            font-size: 0.88rem; font-weight: 500; cursor: pointer;
+            font-family: 'DM Sans', sans-serif; letter-spacing: 0.05em;
+            transition: all 0.25s ease; margin-top: 8px;
+        }
+        .btn-submit:hover { background: #5BB8F5; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(91,184,245,0.3); }
+
+        /* BACK BTN */
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.8rem; color: #5A7FA0; text-decoration: none;
+            padding: 7px 16px; border-radius: 50px;
+            border: 1px solid rgba(91,184,245,0.25); background: white;
+            transition: all 0.2s ease;
+        }
+        .btn-back:hover { color: #5BB8F5; border-color: #5BB8F5; background: #E3F2FD; }
+
+        /* ORDER SUMMARY */
+        .order-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(91,184,245,0.08);
+        }
+        .order-item:last-child { border-bottom: none; }
+
+        .order-img {
+            width: 52px; height: 52px; background: #E3F2FD;
+            border-radius: 12px; display: flex;
+            align-items: center; justify-content: center;
+            flex-shrink: 0; overflow: hidden;
+        }
+        .order-img img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* TOTAL CARD */
+        .total-card {
+            background: linear-gradient(135deg, #1A3A5C 0%, #2563a8 100%);
+            border-radius: 20px; padding: 24px; color: white;
+            margin-top: 16px;
+        }
+        .total-row {
+            display: flex; justify-content: space-between;
+            align-items: center; padding: 8px 0;
+            font-size: 0.85rem; color: rgba(255,255,255,0.65);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .total-row:last-of-type { border-bottom: none; }
+        .total-final {
+            display: flex; justify-content: space-between;
+            align-items: center; padding: 16px 0 0;
+            border-top: 1px solid rgba(255,255,255,0.12);
+            margin-top: 4px;
+        }
+        .total-final-label { font-size: 0.88rem; color: rgba(255,255,255,0.8); font-weight: 500; }
+        .total-final-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem; font-weight: 600; color: white;
+        }
+
+        .alert-error {
+            background: rgba(224,92,92,0.08); border: 1px solid rgba(224,92,92,0.25);
+            color: #c0392b; padding: 12px 16px; border-radius: 12px;
+            margin-bottom: 16px; font-size: 0.85rem;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in { animation: fadeInUp 0.5s ease both; }
+        .delay-1 { animation-delay: 0.1s; }
+    </style>
+</head>
+<body>
+
+    {{-- NAVBAR --}}
+    <nav class="navbar">
+        <div style="max-width:1280px; margin:0 auto; padding:0 24px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 0;">
+                <a href="/" class="font-display" style="font-size:1.6rem; font-weight:300; font-style:italic; color:#1A3A5C; text-decoration:none; letter-spacing:0.15em;">Skinist</a>
+
+                {{-- STEPS --}}
+                <div class="steps">
+                    <div class="step done">
+                        <div class="step-num">✓</div>
+                        <span>Keranjang</span>
+                    </div>
+                    <span class="step-arrow">›</span>
+                    <div class="step active">
+                        <div class="step-num">2</div>
+                        <span>Checkout</span>
+                    </div>
+                    <span class="step-arrow">›</span>
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <span>Pembayaran</span>
+                    </div>
+                </div>
+
+                <span style="font-size:0.82rem; color:#5A7FA0;">Hi, {{ auth()->user()->name }}</span>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto px-4 py-8">
+    <main style="max-width:1100px; margin:0 auto; padding:32px 24px;">
 
-        {{-- TOMBOL KEMBALI KE KERANJANG --}}
-        <div class="mb-6">
-            <a href="{{ route('cart.index') }}" class="inline-flex items-center gap-2 bg-white border border-sky-200 text-sky-500 hover:bg-sky-50 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        {{-- HEADER --}}
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px;" class="animate-in">
+            <div>
+                <h1 class="font-display" style="font-size:2rem; font-weight:300; color:#1A3A5C; margin:0 0 4px;">Checkout</h1>
+                <p style="font-size:0.82rem; color:#5A7FA0;">Lengkapi informasi pengirimanmu</p>
+            </div>
+            <a href="{{ route('cart.index') }}" class="btn-back">
+                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
                 Kembali ke Keranjang
             </a>
         </div>
 
-        <h1 class="text-2xl font-bold text-gray-700 mb-8">💳 Checkout</h1>
-
         @if(session('error'))
-            <div class="bg-red-100 text-red-600 px-4 py-3 rounded-xl mb-4">{{ session('error') }}</div>
+            <div class="alert-error animate-in">{{ session('error') }}</div>
         @endif
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div style="display:grid; grid-template-columns:1fr 380px; gap:24px; align-items:start;">
 
-            {{-- FORM ALAMAT --}}
-            <div class="bg-white rounded-3xl shadow-sm p-6">
-                <h2 class="text-lg font-bold text-gray-700 mb-4">Alamat Pengiriman</h2>
+            {{-- FORM --}}
+            <div class="animate-in">
+                <div class="card" style="margin-bottom:16px;">
+                    <p class="card-title">Informasi Pengiriman</p>
 
-                <form action="{{ route('checkout.process') }}" method="POST" id="checkout-form">
-                    @csrf
-                    <div class="mb-4">
-                        <label class="text-sm text-gray-500 mb-1 block">Nama Lengkap</label>
-                        <input type="text" value="{{ auth()->user()->name }}" disabled
-                            class="w-full bg-sky-50 border border-sky-100 rounded-xl px-4 py-3 text-gray-600">
-                    </div>
-                    <div class="mb-4">
-                        <label class="text-sm text-gray-500 mb-1 block">Email</label>
-                        <input type="email" value="{{ auth()->user()->email }}" disabled
-                            class="w-full bg-sky-50 border border-sky-100 rounded-xl px-4 py-3 text-gray-600">
-                    </div>
-                    <div class="mb-4">
-                        <label class="text-sm text-gray-500 mb-1 block">Alamat Lengkap</label>
-                        <textarea name="shipping_address" rows="4" required
-                            placeholder="Masukkan alamat lengkap kamu..."
-                            class="w-full bg-gray-50 border border-sky-100 rounded-xl px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">{{ old('shipping_address') }}</textarea>
-                        @error('shipping_address')
-                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    <form action="{{ route('checkout.process') }}" method="POST" id="checkout-form">
+                        @csrf
 
-                    {{-- KUPON DISKON --}}
-                    <div class="mb-6">
-                        <h3 class="text-sm font-semibold text-gray-600 mb-2">Punya Kupon?</h3>
-                        @if(session('coupon_code'))
-                            <div class="bg-green-50 border border-green-200 rounded-xl p-3 flex justify-between items-center">
-                                <p class="text-sm font-bold text-green-600">✅ Kupon {{ session('coupon_code') }} aktif!</p>
-                                <a href="{{ route('coupon.remove') }}" class="text-red-400 text-xs hover:underline">Hapus</a>
-                            </div>
-                        @else
-                            @if(session('coupon_error'))
-                                <p class="text-red-400 text-sm mb-2">{{ session('coupon_error') }}</p>
-                            @endif
-                            @if(session('coupon_success'))
-                                <p class="text-green-500 text-sm mb-2">{{ session('coupon_success') }}</p>
-                            @endif
-                            <div class="flex gap-3">
-                                <input type="text" id="coupon_input" placeholder="Masukkan kode kupon..."
-                                    class="flex-1 bg-gray-50 border border-sky-100 rounded-xl px-4 py-3 text-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
-                                <button type="button" onclick="applyCoupon()"
-                                    class="bg-sky-200 hover:bg-sky-300 text-sky-700 px-5 py-3 rounded-xl text-sm font-semibold transition-all">
-                                    Pakai
-                                </button>
-                            </div>
+                        <div class="input-group">
+                            <label class="input-label">Nama Lengkap</label>
+                            <input type="text" value="{{ auth()->user()->name }}" disabled class="input-field">
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Email</label>
+                            <input type="email" value="{{ auth()->user()->email }}" disabled class="input-field">
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Alamat Lengkap</label>
+                            <textarea name="shipping_address" rows="4" required
+                                placeholder="Jl. Contoh No. 123, Kelurahan, Kecamatan, Kota, Kode Pos..."
+                                class="input-field">{{ old('shipping_address') }}</textarea>
+                            @error('shipping_address')
+                                <p class="error-msg">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            Buat Pesanan →
+                        </button>
+                    </form>
+                </div>
+
+                {{-- KUPON --}}
+                <div class="card">
+                    <p class="card-title">Kode Kupon</p>
+                    @if(session('coupon_code'))
+                        <div class="coupon-active">
+                            <span class="coupon-active-label">✓ Kupon <strong>{{ session('coupon_code') }}</strong> aktif</span>
+                            <a href="{{ route('coupon.remove') }}" class="coupon-remove">Hapus</a>
+                        </div>
+                    @else
+                        @if(session('coupon_error'))
+                            <p style="font-size:0.78rem; color:#e05c5c; margin-bottom:10px;">{{ session('coupon_error') }}</p>
                         @endif
-                    </div>
-
-                    <button type="submit"
-                        class="w-full bg-sky-300 hover:bg-sky-400 text-white font-semibold py-4 rounded-2xl text-lg transition-all duration-200">
-                        Buat Pesanan ✨
-                    </button>
-                </form>
+                        @if(session('coupon_success'))
+                            <p style="font-size:0.78rem; color:#5BB8F5; margin-bottom:10px;">{{ session('coupon_success') }}</p>
+                        @endif
+                        <div class="coupon-input-wrap">
+                            <input type="text" id="coupon_input" placeholder="Masukkan kode kupon..." class="input-field" style="margin:0;">
+                            <button type="button" onclick="applyCoupon()" class="btn-coupon">Pakai</button>
+                        </div>
+                    @endif
+                </div>
             </div>
 
-            {{-- RINGKASAN PESANAN --}}
-            <div>
-                <div class="bg-white rounded-3xl shadow-sm p-6 mb-4">
-                    <h2 class="text-lg font-bold text-gray-700 mb-4">Ringkasan Pesanan</h2>
+            {{-- SUMMARY --}}
+            <div class="animate-in delay-1">
+                <div class="card">
+                    <p class="card-title">Ringkasan Pesanan</p>
                     @foreach($carts as $cart)
-                    <div class="flex items-center gap-4 mb-4 pb-4 border-b border-sky-50 last:border-0 last:mb-0 last:pb-0">
-                        <div class="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <span class="text-xl">🧴</span>
+                    <div class="order-item">
+                        <div class="order-img">
+                            @if($cart->variant->product->thumbnail)
+                                <img src="{{ asset('storage/' . $cart->variant->product->thumbnail) }}" alt="">
+                            @else
+                                <span style="font-size:1.5rem;">🧴</span>
+                            @endif
                         </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-semibold text-gray-700">{{ $cart->variant->product->name }}</p>
-                            <div class="flex items-center gap-1 mt-1">
-                                <span class="w-3 h-3 rounded-full inline-block" style="background-color: {{ $cart->variant->hex_color }}"></span>
-                                <span class="text-xs text-gray-400">{{ $cart->variant->shade_name }}</span>
+                        <div style="flex:1; min-width:0;">
+                            <p style="font-size:0.85rem; font-weight:500; color:#1A3A5C; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $cart->variant->product->name }}</p>
+                            <div style="display:flex; align-items:center; gap:5px; margin-top:3px;">
+                                @if($cart->variant->hex_color)
+                                <span style="width:10px; height:10px; border-radius:50%; background:{{ $cart->variant->hex_color }}; border:1px solid rgba(0,0,0,0.1); display:inline-block;"></span>
+                                @endif
+                                <span style="font-size:0.75rem; color:#5A7FA0;">{{ $cart->variant->shade_name }} @if($cart->variant->size) · {{ $cart->variant->size }} @endif</span>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-sm font-bold text-sky-500">Rp {{ number_format($cart->variant->price * $cart->quantity, 0, ',', '.') }}</p>
-                            <p class="text-xs text-gray-400">x{{ $cart->quantity }}</p>
+                        <div style="text-align:right; flex-shrink:0;">
+                            <p style="font-size:0.85rem; font-weight:600; color:#5BB8F5;">Rp {{ number_format($cart->variant->price * $cart->quantity, 0, ',', '.') }}</p>
+                            <p style="font-size:0.72rem; color:#5A7FA0;">×{{ $cart->quantity }}</p>
                         </div>
                     </div>
                     @endforeach
                 </div>
 
-                {{-- Total --}}
-                <div class="bg-sky-300 rounded-3xl shadow-sm p-6 text-white">
-                    @php
-                        $subtotal = $carts->sum(fn($c) => $c->variant->price * $c->quantity);
-                        $discount = 0;
-                        if(session('coupon_id')) {
-                            $coupon = \App\Models\Coupon::find(session('coupon_id'));
-                            if($coupon) $discount = $coupon->calculateDiscount($subtotal);
-                        }
-                        $finalTotal = $subtotal - $discount;
-                    @endphp
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm">Subtotal</span>
-                        <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                {{-- TOTAL --}}
+                @php
+                    $subtotal = $carts->sum(fn($c) => $c->variant->price * $c->quantity);
+                    $discount = 0;
+                    if(session('coupon_id')) {
+                        $coupon = \App\Models\Coupon::find(session('coupon_id'));
+                        if($coupon) $discount = $coupon->calculateDiscount($subtotal);
+                    }
+                    $finalTotal = $subtotal - $discount;
+                @endphp
+                <div class="total-card">
+                    <div class="total-row">
+                        <span>Subtotal</span>
+                        <span style="color:rgba(255,255,255,0.85);">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                     </div>
                     @if($discount > 0)
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm">Diskon Kupon</span>
-                        <span class="text-green-200">- Rp {{ number_format($discount, 0, ',', '.') }}</span>
+                    <div class="total-row">
+                        <span>Diskon Kupon</span>
+                        <span style="color:#BFDFFF;">− Rp {{ number_format($discount, 0, ',', '.') }}</span>
                     </div>
                     @endif
-                    <div class="flex justify-between items-center border-t border-sky-200 pt-2 mt-2">
-                        <span class="font-semibold">Total Pembayaran</span>
-                        <span class="text-2xl font-bold">Rp {{ number_format($finalTotal, 0, ',', '.') }}</span>
+                    <div class="total-row">
+                        <span>Ongkos Kirim</span>
+                        <span style="color:#BFDFFF;">Gratis</span>
+                    </div>
+                    <div class="total-final">
+                        <span class="total-final-label">Total Pembayaran</span>
+                        <span class="total-final-value">Rp {{ number_format($finalTotal, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>
@@ -152,33 +346,23 @@
 
     </main>
 
-    <footer class="bg-white border-t border-sky-100 py-8 text-center text-sm text-gray-400 mt-16">
-        © 2025 Skinist — keep the barrier safe, let your flawless skin speak.
+    <footer style="background:#1A3A5C; padding:24px; text-align:center; margin-top:64px;">
+        <p style="font-size:0.75rem; color:rgba(255,255,255,0.3); letter-spacing:0.08em;">© 2025 Skinist — keep the barrier safe, let your flawless skin speak.</p>
     </footer>
 
 <script>
 function applyCoupon() {
     const code = document.getElementById('coupon_input').value;
     if (!code) return;
-    
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = '{{ route('coupon.apply') }}';
-    
     const csrf = document.createElement('input');
-    csrf.type = 'hidden';
-    csrf.name = '_token';
-    csrf.value = '{{ csrf_token() }}';
-    
+    csrf.type = 'hidden'; csrf.name = '_token'; csrf.value = '{{ csrf_token() }}';
     const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'coupon_code';
-    input.value = code;
-    
-    form.appendChild(csrf);
-    form.appendChild(input);
-    document.body.appendChild(form);
-    form.submit();
+    input.type = 'hidden'; input.name = 'coupon_code'; input.value = code;
+    form.appendChild(csrf); form.appendChild(input);
+    document.body.appendChild(form); form.submit();
 }
 </script>
 
