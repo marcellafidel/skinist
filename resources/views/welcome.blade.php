@@ -476,7 +476,7 @@
 
     {{-- ANNOUNCEMENT BAR --}}
     <div class="announcement-bar">
-        ✦ Unlock Your Discount &nbsp;·&nbsp; ✦ New Arrivals Every Week &nbsp;·&nbsp; ✦ 100% Original Products
+        ✦ Free Ongkir Pembelian di atas Rp 150.000 &nbsp;·&nbsp; ✦ New Arrivals Every Week &nbsp;·&nbsp; ✦ 100% Original Products
     </div>
 
     {{-- NAVBAR --}}
@@ -615,96 +615,172 @@
             </div>
         </div>
 
-        {{-- PRODUCT SECTION --}}
-        <div style="margin-bottom:16px;" data-aos="fade-up">
-            <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:20px;">
-                <div>
-                    <h2 class="section-title">Pilihan Favoritmu</h2>
-                    <div style="display:flex; gap:24px; margin-top:12px;">
-                        <button id="tab-bestseller" onclick="switchTab('bestseller')" class="tab-btn active">Best Seller</button>
-                        <button id="tab-newarrival" onclick="switchTab('newarrival')" class="tab-btn">New Arrival</button>
+        {{-- CHOOSE YOUR FAV --}}
+        <div data-aos="fade-up" style="margin-bottom:64px;">
+
+            {{-- HEADER TENGAH --}}
+            <div style="text-align:center; margin-bottom:32px;">
+                <p style="font-size:0.72rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--rose); font-weight:500; margin-bottom:8px;">Produk Pilihan</p>
+                <h2 class="section-title" style="font-size:2.4rem;">Choose Your Fav</h2>
+                <p style="font-size:0.85rem; color:var(--mid); margin-top:8px;">Temukan produk yang cocok untukmu</p>
+
+                {{-- TABS --}}
+                <div style="display:flex; justify-content:center; gap:32px; margin-top:20px; border-bottom:1px solid rgba(91,184,245,0.12); padding-bottom:0;">
+                    <button id="tab-bestseller" onclick="switchTab('bestseller')" class="tab-btn active">Best Seller</button>
+                    <button id="tab-newarrival" onclick="switchTab('newarrival')" class="tab-btn">New Arrival</button>
+                </div>
+            </div>
+
+            {{-- GRID BEST SELLER — 4 produk saja --}}
+            <div id="grid-bestseller" style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:28px;">
+                @forelse(($products ?? collect())->take(4) as $product)
+                <div class="product-card" data-aos="fade-up" data-aos-delay="{{ $loop->index * 60 }}" style="padding:0;">
+                    <div class="product-img-wrap">
+                        @if($product->thumbnail)
+                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}">
+                        @else
+                            <div style="font-size:3.5rem; filter:drop-shadow(0 8px 16px rgba(91,184,245,0.2));">🧴</div>
+                        @endif
+                    </div>
+                    <div style="padding:16px;">
+                        <a href="{{ route('products.show', $product->slug) }}" style="text-decoration:none; display:block;">
+                            <p class="product-brand">{{ $product->brand->name }}</p>
+                            <p class="product-name">{{ $product->name }}</p>
+                            <p class="product-price">Rp {{ number_format($product->variants->first()->price ?? 0, 0, ',', '.') }}</p>
+                        </a>
+                        @auth
+                        <button onclick="openShadePopup({{ $product->id }}, {{ $product->variants->toJson() }})" class="btn-cart">
+                            + Tambah ke Keranjang
+                        </button>
+                        @php $inWishlist = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists(); @endphp
+                        <button onclick="toggleWishlist(this, {{ $product->id }})"
+                            data-wishlisted="{{ $inWishlist ? 'true' : 'false' }}"
+                            class="btn-wishlist {{ $inWishlist ? 'wishlisted' : '' }}">
+                            {{ $inWishlist ? '❤️ Wishlisted' : '🤍 Wishlist' }}
+                        </button>
+                        @endauth
                     </div>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:0.78rem; color:var(--mid); letter-spacing:0.05em;">Urutkan:</span>
-                    <select onchange="window.location.href='/?sort='+this.value" class="sort-select">
-                        <option value="latest" {{ ($sort ?? 'latest') === 'latest' ? 'selected' : '' }}>Terbaru</option>
-                        <option value="price_low" {{ ($sort ?? '') === 'price_low' ? 'selected' : '' }}>Harga Terendah</option>
-                        <option value="price_high" {{ ($sort ?? '') === 'price_high' ? 'selected' : '' }}>Harga Tertinggi</option>
-                        <option value="name" {{ ($sort ?? '') === 'name' ? 'selected' : '' }}>Nama A–Z</option>
-                    </select>
+                @empty
+                <div style="grid-column:span 4; text-align:center; padding:48px; color:var(--mid);">Belum ada produk.</div>
+                @endforelse
+            </div>
+
+            {{-- GRID NEW ARRIVAL — 4 produk saja --}}
+            <div id="grid-newarrival" style="display:none; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:28px;">
+                @forelse(($newArrivals ?? collect())->take(4) as $product)
+                <div class="product-card" data-aos="fade-up" data-aos-delay="{{ $loop->index * 60 }}" style="padding:0;">
+                    <div class="product-img-wrap">
+                        @if($product->thumbnail)
+                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}">
+                        @else
+                            <div style="font-size:3.5rem; filter:drop-shadow(0 8px 16px rgba(91,184,245,0.2));">🧴</div>
+                        @endif
+                    </div>
+                    <div style="padding:16px;">
+                        <a href="{{ route('products.show', $product->slug) }}" style="text-decoration:none; display:block;">
+                            <p class="product-brand">{{ $product->brand->name }}</p>
+                            <p class="product-name">{{ $product->name }}</p>
+                            <p class="product-price">Rp {{ number_format($product->variants->first()->price ?? 0, 0, ',', '.') }}</p>
+                        </a>
+                        @auth
+                        <button onclick="openShadePopup({{ $product->id }}, {{ $product->variants->toJson() }})" class="btn-cart">
+                            + Tambah ke Keranjang
+                        </button>
+                        @php $inWishlist = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists(); @endphp
+                        <button onclick="toggleWishlist(this, {{ $product->id }})"
+                            data-wishlisted="{{ $inWishlist ? 'true' : 'false' }}"
+                            class="btn-wishlist {{ $inWishlist ? 'wishlisted' : '' }}">
+                            {{ $inWishlist ? '❤️ Wishlisted' : '🤍 Wishlist' }}
+                        </button>
+                        @endauth
+                    </div>
                 </div>
+                @empty
+                <div style="grid-column:span 4; text-align:center; padding:48px; color:var(--mid);">Belum ada produk.</div>
+                @endforelse
+            </div>
+
+            {{-- TOMBOL LIHAT SEMUA --}}
+            <div style="text-align:center;">
+                <a href="{{ route('best.seller') }}" id="btn-lihat-semua"
+                    style="display:inline-flex; align-items:center; gap:8px; border:1.5px solid rgba(91,184,245,0.3); color:var(--mid); padding:11px 28px; border-radius:50px; font-size:0.82rem; text-decoration:none; transition:all 0.25s ease; letter-spacing:0.04em;"
+                    onmouseover="this.style.borderColor='var(--rose)'; this.style.color='var(--deep)'; this.style.background='var(--light)';"
+                    onmouseout="this.style.borderColor='rgba(91,184,245,0.3)'; this.style.color='var(--mid)'; this.style.background='none';">
+                    Lihat Semua Produk
+                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                </a>
             </div>
         </div>
 
-        {{-- GRID BEST SELLER --}}
-        <div id="grid-bestseller" style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:64px;">
-            @forelse($products ?? [] as $product)
-            <div class="product-card" data-aos="fade-up" data-aos-delay="{{ $loop->index * 60 }}" style="padding:0;">
-                <div class="product-img-wrap">
-                    @if($product->thumbnail)
-                        <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}">
-                    @else
-                        <div style="font-size:3.5rem; filter:drop-shadow(0 8px 16px rgba(91,184,245,0.2));">🧴</div>
-                    @endif
-                </div>
-                <div style="padding:16px;">
-                    <a href="{{ route('products.show', $product->slug) }}" style="text-decoration:none; display:block;">
-                        <p class="product-brand">{{ $product->brand->name }}</p>
-                        <p class="product-name">{{ $product->name }}</p>
-                        <p class="product-price">Rp {{ number_format($product->variants->first()->price ?? 0, 0, ',', '.') }}</p>
-                    </a>
-                    @auth
-                    <button onclick="openShadePopup({{ $product->id }}, {{ $product->variants->toJson() }})" class="btn-cart">
-                        + Tambah ke Keranjang
-                    </button>
-                    @php $inWishlist = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists(); @endphp
-                    <button onclick="toggleWishlist(this, {{ $product->id }})"
-                        data-wishlisted="{{ $inWishlist ? 'true' : 'false' }}"
-                        class="btn-wishlist {{ $inWishlist ? 'wishlisted' : '' }}">
-                        {{ $inWishlist ? '❤️ Wishlisted' : '🤍 Wishlist' }}
-                    </button>
-                    @endauth
-                </div>
-            </div>
-            @empty
-            <div style="grid-column:span 4; text-align:center; padding:48px; color:var(--mid);">Belum ada produk.</div>
-            @endforelse
-        </div>
+        {{-- SHOP BY BRAND — 5 brand terlaris --}}
+        @php
+            $topBrands = \App\Models\Brand::query()
+                ->withCount(['products as order_count' => function($q) {
+                    $q->join('product_variants', 'products.id', '=', 'product_variants.product_id')
+                      ->join('order_details', 'product_variants.id', '=', 'order_details.product_variant_id')
+                      ->selectRaw('SUM(order_details.quantity)');
+                }])
+                ->orderByDesc('order_count')
+                ->take(5)
+                ->get();
 
-        {{-- GRID NEW ARRIVAL --}}
-        <div id="grid-newarrival" style="display:none; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:64px;">
-            @forelse($newArrivals ?? [] as $product)
-            <div class="product-card" data-aos="fade-up" data-aos-delay="{{ $loop->index * 60 }}" style="padding:0;">
-                <div class="product-img-wrap">
-                    @if($product->thumbnail)
-                        <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}">
-                    @else
-                        <div style="font-size:3.5rem; filter:drop-shadow(0 8px 16px rgba(91,184,245,0.2));">🧴</div>
-                    @endif
-                </div>
-                <div style="padding:16px;">
-                    <a href="{{ route('products.show', $product->slug) }}" style="text-decoration:none; display:block;">
-                        <p class="product-brand">{{ $product->brand->name }}</p>
-                        <p class="product-name">{{ $product->name }}</p>
-                        <p class="product-price">Rp {{ number_format($product->variants->first()->price ?? 0, 0, ',', '.') }}</p>
-                    </a>
-                    @auth
-                    <button onclick="openShadePopup({{ $product->id }}, {{ $product->variants->toJson() }})" class="btn-cart">
-                        + Tambah ke Keranjang
-                    </button>
-                    @php $inWishlist = \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists(); @endphp
-                    <button onclick="toggleWishlist(this, {{ $product->id }})"
-                        data-wishlisted="{{ $inWishlist ? 'true' : 'false' }}"
-                        class="btn-wishlist {{ $inWishlist ? 'wishlisted' : '' }}">
-                        {{ $inWishlist ? '❤️ Wishlisted' : '🤍 Wishlist' }}
-                    </button>
-                    @endauth
-                </div>
+            // fallback: kalau belum ada order, ambil brand pertama
+            if ($topBrands->isEmpty()) {
+                $topBrands = \App\Models\Brand::take(5)->get();
+            }
+
+            $brandEmojis = ['💄','🧴','✨','💋','🌸','🫧','💅','🪷','🌷','👄'];
+        @endphp
+
+        @php
+            $brandBg = [
+                'linear-gradient(135deg, #BFDFFF 0%, #E3F2FD 100%)',
+                'linear-gradient(135deg, #D6EEFF 0%, #BFDFFF 100%)',
+                'linear-gradient(135deg, #E3F2FD 0%, #C8E6FF 100%)',
+                'linear-gradient(135deg, #C8E6FF 0%, #D6EEFF 100%)',
+                'linear-gradient(135deg, #BFDFFF 0%, #C8E6FF 100%)',
+            ];
+        @endphp
+
+        <div data-aos="fade-up" style="margin-bottom:64px;">
+            <div style="text-align:center; margin-bottom:32px;">
+                <p style="font-size:0.72rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--rose); font-weight:500; margin-bottom:8px;">Brand Favorit</p>
+                <h2 class="section-title" style="font-size:2.4rem;">Shop by Brand</h2>
+                <p style="font-size:0.85rem; color:var(--mid); margin-top:8px;">Brand paling banyak dibeli oleh pelanggan kami</p>
             </div>
-            @empty
-            <div style="grid-column:span 4; text-align:center; padding:48px; color:var(--mid);">Belum ada produk.</div>
-            @endforelse
+
+            <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:16px;">
+                @foreach($topBrands as $i => $brand)
+                <a href="{{ route('brand.show', $brand->slug) }}"
+                    data-aos="fade-up" data-aos-delay="{{ $i * 80 }}"
+                    style="border-radius:20px; overflow:hidden; text-decoration:none; transition:all 0.35s cubic-bezier(0.25,0.46,0.45,0.94); border:1.5px solid rgba(91,184,245,0.1); background:white;"
+                    onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 16px 36px rgba(91,184,245,0.2)'; this.style.borderColor='var(--rose)';"
+                    onmouseout="this.style.transform='none'; this.style.boxShadow='none'; this.style.borderColor='rgba(91,184,245,0.1)';">
+
+                    {{-- "Foto" brand — background gradient + emoji besar --}}
+                    <div style="height:140px; background:{{ $brandBg[$i] ?? $brandBg[0] }}; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                        {{-- Lingkaran dekorasi --}}
+                        <div style="position:absolute; top:-20px; right:-20px; width:80px; height:80px; background:rgba(255,255,255,0.3); border-radius:50%;"></div>
+                        <div style="position:absolute; bottom:-15px; left:-15px; width:60px; height:60px; background:rgba(255,255,255,0.2); border-radius:50%;"></div>
+                        {{-- Emoji --}}
+                        <span style="font-size:3.5rem; filter:drop-shadow(0 4px 12px rgba(91,184,245,0.2)); position:relative; z-index:1;">{{ $brandEmojis[$i] ?? '🏷️' }}</span>
+                    </div>
+
+                    {{-- Info brand --}}
+                    <div style="padding:14px 16px;">
+                        <p style="font-size:0.9rem; font-weight:600; color:var(--deep); margin:0 0 4px; letter-spacing:0.02em;">{{ $brand->name }}</p>
+                        @if($brand->order_count > 0)
+                        <p style="font-size:0.72rem; color:var(--mid);">{{ number_format($brand->order_count) }} terjual</p>
+                        @else
+                        <p style="font-size:0.72rem; color:var(--mid);">Jelajahi koleksi →</p>
+                        @endif
+                    </div>
+                </a>
+                @endforeach
+            </div>
         </div>
 
         {{-- SHOP BY CATEGORIES --}}
@@ -762,17 +838,15 @@
                     <p style="margin-top:16px; font-size:0.85rem; line-height:1.8; color:rgba(255,255,255,0.45);">
                         keep the barrier safe,<br>let your flawless skin speak.
                     </p>
-                    <div style="display:flex; gap:12px; margin-top:24px;">
-                        <a href="https://instagram.com/skinist" target="_blank" style="width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:0.85rem; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--rose)'; this.style.background='rgba(91,184,245,0.15)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.background='none'">📸</a>
-                        <a href="https://tiktok.com/@skinist" target="_blank" style="width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:0.85rem; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--rose)'; this.style.background='rgba(91,184,245,0.15)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.background='none'">🎵</a>
-                    </div>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="100">
                     <h4 style="font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:20px;">Hubungi Kami</h4>
-                    <ul style="list-style:none; padding:0; margin:0; space-y:10px;">
+                    <ul style="list-style:none; padding:0; margin:0;">
                         <li style="margin-bottom:12px;"><a href="https://wa.me/087646787534245" style="font-size:0.85rem; color:rgba(255,255,255,0.55); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='var(--blush)'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">📱 087646787534245</a></li>
                         <li style="margin-bottom:12px;"><a href="mailto:cs.skinist@gmail.com" style="font-size:0.85rem; color:rgba(255,255,255,0.55); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='var(--blush)'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">✉️ cs.skinist@gmail.com</a></li>
-                        <li><span style="font-size:0.85rem; color:rgba(255,255,255,0.55);">📍 Jl. Apalo</span></li>
+                        <li style="margin-bottom:12px;"><span style="font-size:0.85rem; color:rgba(255,255,255,0.55);">📍 Jl. Apalo</span></li>
+                        <li style="margin-bottom:8px;"><a href="https://instagram.com/skinist" target="_blank" style="font-size:0.85rem; color:rgba(255,255,255,0.55); text-decoration:none; transition:color 0.2s; display:flex; align-items:center; gap:8px;" onmouseover="this.style.color='var(--blush)'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">📸 @skinist</a></li>
+                        <li><a href="https://tiktok.com/@skinist" target="_blank" style="font-size:0.85rem; color:rgba(255,255,255,0.55); text-decoration:none; transition:color 0.2s; display:flex; align-items:center; gap:8px;" onmouseover="this.style.color='var(--blush)'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">🎵 @skinist</a></li>
                     </ul>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="200">
@@ -800,16 +874,19 @@
         const naGrid = document.getElementById('grid-newarrival');
         const bsTab = document.getElementById('tab-bestseller');
         const naTab = document.getElementById('tab-newarrival');
+        const btnLihat = document.getElementById('btn-lihat-semua');
         if (tab === 'bestseller') {
             bsGrid.style.display = 'grid';
             naGrid.style.display = 'none';
             bsTab.classList.add('active');
             naTab.classList.remove('active');
+            if (btnLihat) btnLihat.href = '{{ route("best.seller") }}';
         } else {
             naGrid.style.display = 'grid';
             bsGrid.style.display = 'none';
             naTab.classList.add('active');
             bsTab.classList.remove('active');
+            if (btnLihat) btnLihat.href = '{{ route("new.arrival") }}';
         }
     }
 
