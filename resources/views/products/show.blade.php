@@ -299,7 +299,7 @@
                 {{-- SHADE PICKER --}}
                 @if($product->variants->first()->shade_name)
                 <div>
-                    <p style="font-size:0.78rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid); margin-bottom:12px; font-weight:500;">Pilih Shade</p>
+                    <p style="font-size:0.78rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid); margin-bottom:12px; font-weight:500;">Pilih Variant</p>
                     <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:8px;">
                         @foreach($product->variants as $variant)
                         <button type="button"

@@ -33,4 +33,14 @@ class OrderController extends Controller
 
         return back()->with('success', 'Bukti pembayaran berhasil diupload! Menunggu konfirmasi admin.');
     }
+
+    public function invoice($id)
+    {
+        $order = Order::where('id', $id)
+                    ->where('user_id', auth()->id())
+                    ->with('details.variant.product.brand')
+                    ->firstOrFail();
+
+        return view('orders.invoice', compact('order'));
+    }
 }

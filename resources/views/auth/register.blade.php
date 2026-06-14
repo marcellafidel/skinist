@@ -263,7 +263,7 @@
             </div>
             <div class="left-step">
                 <div class="step-icon">🚚</div>
-                <span class="step-text">Gratis ongkir untuk pembelian tertentu</span>
+                <span class="step-text">Pengiriman Cepat</span>
             </div>
             <div class="left-step">
                 <div class="step-icon">🔒</div>

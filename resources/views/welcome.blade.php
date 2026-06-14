@@ -476,7 +476,7 @@
 
     {{-- ANNOUNCEMENT BAR --}}
     <div class="announcement-bar">
-        ✦ Free Ongkir Pembelian di atas Rp 150.000 &nbsp;·&nbsp; ✦ New Arrivals Every Week &nbsp;·&nbsp; ✦ 100% Original Products
+        ✦ Got Your Discount &nbsp;·&nbsp; ✦ New Arrivals Every Week &nbsp;·&nbsp; ✦ 100% Original Products
     </div>
 
     {{-- NAVBAR --}}

@@ -72,6 +72,7 @@ Route::middleware('auth')->group(function () {
     })->name('profile.show');
     Route::post('/coupon/apply', [CouponController::class, 'apply'])->name('coupon.apply');
     Route::get('/coupon/remove', [CouponController::class, 'remove'])->name('coupon.remove');
+    Route::get('/orders/{id}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
 });
 
 // Admin
@@ -99,6 +100,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/laporan-keuangan', [AdminController::class, 'laporanKeuangan'])->name('admin.laporan');
     Route::get('/admin/histori-stok', [AdminController::class, 'historiStok'])->name('admin.stok');
     Route::post('/admin/stok/tambah', [AdminController::class, 'tambahStok'])->name('admin.stok.tambah');
+    Route::get('/admin/orders/{id}/invoice', [AdminController::class, 'invoice'])->name('admin.invoice');
 });
 
 // Search

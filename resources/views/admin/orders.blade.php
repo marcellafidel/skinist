@@ -71,7 +71,13 @@
             @endforeach
 
             <div class="flex justify-between items-center mt-4 pt-4 border-t border-sky-50">
-                <p class="text-sm text-gray-400">{{ $order->created_at->format('d M Y') }}</p>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <p class="text-sm text-gray-400">{{ $order->created_at->format('d M Y') }}</p>
+                    <a href="{{ route('admin.invoice', $order->id) }}"
+                        class="text-xs text-sky-500 border border-sky-200 px-3 py-1 rounded-full hover:bg-sky-50 transition-all">
+                        🧾 Lihat Invoice
+                    </a>
+                </div>
                 <p class="font-bold text-sky-500">Total: Rp {{ number_format($order->total_price, 0, ',', '.') }}</p>
             </div>
 

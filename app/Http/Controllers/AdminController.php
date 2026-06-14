@@ -43,6 +43,16 @@ class AdminController extends Controller
         return back()->with('success', 'Status pesanan diupdate!');
     }
 
+    public function invoice($id)
+    {
+        $this->checkAdmin();
+        $order = Order::where('id', $id)
+                    ->with('details.variant.product.brand', 'user')
+                    ->firstOrFail();
+
+        return view('admin.invoice', compact('order'));
+    }
+
     public function brands()
     {
         $this->checkAdmin();
