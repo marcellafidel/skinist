@@ -15,44 +15,6 @@ class AdminController extends Controller
         }
     }
 
-    public function orders()
-    {
-        $this->checkAdmin();
-        $orders = Order::with(['user', 'details.variant.product'])
-                       ->latest()
-                       ->get();
-        return view('admin.orders', compact('orders'));
-    }
-
-    public function confirmPayment($id)
-    {
-        $this->checkAdmin();
-        $order = Order::findOrFail($id);
-        $order->update(['status' => 'paid']);
-        return back()->with('success', 'Pembayaran dikonfirmasi!');
-    }
-
-    public function updateStatus(Request $request, $id)
-    {
-        $this->checkAdmin();
-        $request->validate([
-            'status' => 'required|in:pending,paid,shipped,delivered,cancelled',
-        ]);
-        $order = Order::findOrFail($id);
-        $order->update(['status' => $request->status]);
-        return back()->with('success', 'Status pesanan diupdate!');
-    }
-
-    public function invoice($id)
-    {
-        $this->checkAdmin();
-        $order = Order::where('id', $id)
-                    ->with('details.variant.product.brand', 'user')
-                    ->firstOrFail();
-
-        return view('admin.invoice', compact('order'));
-    }
-
     public function brands()
     {
         $this->checkAdmin();

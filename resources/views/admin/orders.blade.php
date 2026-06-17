@@ -73,6 +73,10 @@
             <div class="flex justify-between items-center mt-4 pt-4 border-t border-sky-50">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <p class="text-sm text-gray-400">{{ $order->created_at->format('d M Y') }}</p>
+                    <a href="{{ route('admin.orders.show', $order->id) }}"
+                        class="text-xs text-sky-500 border border-sky-200 px-3 py-1 rounded-full hover:bg-sky-50 transition-all">
+                        📋 Riwayat Status
+                    </a>
                     <a href="{{ route('admin.invoice', $order->id) }}"
                         class="text-xs text-sky-500 border border-sky-200 px-3 py-1 rounded-full hover:bg-sky-50 transition-all">
                         🧾 Lihat Invoice
@@ -101,20 +105,28 @@
 
             {{-- Update Status --}}
             <div class="mt-4">
-                <form action="{{ route('admin.status', $order->id) }}" method="POST" class="flex items-center gap-3">
+                @if(in_array($order->status, ['delivered', 'cancelled']))
+                    <p class="text-xs text-gray-400 italic">Status pesanan sudah final dan tidak bisa diubah lagi.</p>
+                @else
+                <form action="{{ route('admin.status', $order->id) }}" method="POST" class="flex flex-col gap-3">
                     @csrf
-                    <select name="status" class="border border-sky-200 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
-                        <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="paid" {{ $order->status === 'paid' ? 'selected' : '' }}>Paid</option>
-                        <option value="shipped" {{ $order->status === 'shipped' ? 'selected' : '' }}>Shipped</option>
-                        <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Delivered</option>
-                        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                    </select>
-                    <button type="submit"
-                        class="bg-sky-300 hover:bg-sky-400 text-white px-5 py-2 rounded-full text-sm font-semibold transition-all">
-                        Update Status
-                    </button>
+                    <div class="flex items-center gap-3">
+                        <select name="status" class="border border-sky-200 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300">
+                            <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="paid" {{ $order->status === 'paid' ? 'selected' : '' }}>Paid</option>
+                            <option value="shipped" {{ $order->status === 'shipped' ? 'selected' : '' }}>Shipped</option>
+                            <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Delivered</option>
+                            <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        </select>
+                        <button type="submit"
+                            class="bg-sky-300 hover:bg-sky-400 text-white px-5 py-2 rounded-full text-sm font-semibold transition-all">
+                            Update Status
+                        </button>
+                    </div>
+                    <input type="text" name="note" placeholder="Catatan (opsional, contoh: nomor resi, alasan, dll)"
+                        class="border border-sky-200 rounded-xl px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-300 w-full">
                 </form>
+                @endif
             </div>
 
         </div>

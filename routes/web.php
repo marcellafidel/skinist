@@ -59,8 +59,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cart/{id}', [CartController::class, 'remove'])->name('cart.remove');
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::post('/orders/{id}/upload', [OrderController::class, 'uploadPayment'])->name('orders.upload');
+    Route::get('/orders', function () {
+        return redirect()->route('orders.tracking.index');
+    })->name('orders.index');
+    Route::get('/orders/track', [\App\Http\Controllers\User\OrderTrackingController::class, 'index'])->name('orders.tracking.index');
+    Route::get('/orders/track/{invoiceNumber}', [\App\Http\Controllers\User\OrderTrackingController::class, 'show'])->name('orders.tracking.show');
+    Route::post('/orders/track/{invoiceNumber}/cancel', [\App\Http\Controllers\User\OrderTrackingController::class, 'cancel'])->name('orders.tracking.cancel');
+    Route::post('/orders/track/{invoiceNumber}/upload', [\App\Http\Controllers\User\OrderTrackingController::class, 'uploadPayment'])->name('orders.tracking.upload');
     Route::post('/products/{id}/review', [ReviewController::class, 'store'])->name('reviews.store');
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
@@ -77,9 +82,10 @@ Route::middleware('auth')->group(function () {
 
 // Admin
 Route::middleware('auth')->group(function () {
-    Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders');
-    Route::post('/admin/orders/{id}/confirm', [AdminController::class, 'confirmPayment'])->name('admin.confirm');
-    Route::post('/admin/orders/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.status');
+    Route::get('/admin/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('admin.orders');
+    Route::get('/admin/orders/{id}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('admin.orders.show');
+    Route::post('/admin/orders/{id}/confirm', [\App\Http\Controllers\Admin\OrderController::class, 'confirmPayment'])->name('admin.confirm');
+    Route::post('/admin/orders/{id}/status', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('admin.status');
     Route::get('/admin/products', [\App\Http\Controllers\Admin\ProductController::class, 'index'])->name('admin.products.index');
     Route::get('/admin/products/create', [\App\Http\Controllers\Admin\ProductController::class, 'create'])->name('admin.products.create');
     Route::post('/admin/products', [\App\Http\Controllers\Admin\ProductController::class, 'store'])->name('admin.products.store');
@@ -100,7 +106,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/laporan-keuangan', [AdminController::class, 'laporanKeuangan'])->name('admin.laporan');
     Route::get('/admin/histori-stok', [AdminController::class, 'historiStok'])->name('admin.stok');
     Route::post('/admin/stok/tambah', [AdminController::class, 'tambahStok'])->name('admin.stok.tambah');
-    Route::get('/admin/orders/{id}/invoice', [AdminController::class, 'invoice'])->name('admin.invoice');
+    Route::get('/admin/orders/{id}/invoice', [\App\Http\Controllers\Admin\OrderController::class, 'invoice'])->name('admin.invoice');
 });
 
 // Search

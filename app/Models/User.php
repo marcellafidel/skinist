@@ -29,4 +29,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function myNotifications()
+    {
+        return $this->hasMany(\App\Models\Notification::class);
+    }
 }
