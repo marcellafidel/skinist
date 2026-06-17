@@ -295,7 +295,14 @@
 
             {{-- FOOTER --}}
             <div class="order-footer">
-                <span class="order-date">{{ $order->created_at->format('d M Y, H:i') }}</span>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span class="order-date">{{ $order->created_at->format('d M Y, H:i') }}</span>
+                    <a href="{{ route('orders.invoice', $order->id) }}"
+                        style="font-size:0.78rem; color:#5BB8F5; text-decoration:none; border:1px solid rgba(91,184,245,0.3); padding:6px 14px; border-radius:50px; transition:all 0.2s; display:inline-flex; align-items:center; gap:5px; background:white;"
+                        onmouseover="this.style.background='#E3F2FD'" onmouseout="this.style.background='white'">
+                        🧾 Lihat Invoice
+                    </a>
+                </div>
                 <div style="text-align:right;">
                     <p style="font-size:0.7rem; color:#5A7FA0; margin-bottom:2px;">Total Pembayaran</p>
                     <p class="order-total">Rp {{ number_format($order->total_price, 0, ',', '.') }}</p>
