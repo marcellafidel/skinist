@@ -77,6 +77,14 @@
                     <p class="text-gray-400 text-xs">Alamat Pengiriman</p>
                     <p class="font-semibold text-gray-700">{{ $order->shipping_address }}</p>
                 </div>
+                <div>
+                    <p class="text-gray-400 text-xs">Kurir</p>
+                    <p class="font-semibold text-gray-700">{{ $order->courier_name }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-xs">Ongkos Kirim</p>
+                    <p class="font-semibold text-gray-700">Rp {{ number_format($order->shipping_cost, 0, ',', '.') }}</p>
+                </div>
                 @if($order->tracking_number)
                 <div>
                     <p class="text-gray-400 text-xs">No. Resi</p>

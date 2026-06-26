@@ -293,6 +293,14 @@
                 <span class="info-label">Alamat Pengiriman</span>
                 <span class="info-value">{{ $order->shipping_address }}</span>
             </div>
+            <div class="info-row">
+                <span class="info-label">Kurir</span>
+                <span class="info-value">{{ $order->courier_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Ongkos Kirim</span>
+                <span class="info-value">Rp {{ number_format($order->shipping_cost, 0, ',', '.') }}</span>
+            </div>
             @if($order->tracking_number)
             <div class="info-row">
                 <span class="info-label">No. Resi</span>

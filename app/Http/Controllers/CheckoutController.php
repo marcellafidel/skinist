@@ -17,13 +17,16 @@ class CheckoutController extends Controller
                      ->with('variant.product')
                      ->get();
 
-        return view('checkout.index', compact('carts'));
+        $couriers = Order::couriers();
+
+        return view('checkout.index', compact('carts', 'couriers'));
     }
 
     public function processCheckout(Request $request)
     {
         $request->validate([
             'shipping_address' => 'required|string',
+            'shipping_courier' => 'required|in:' . implode(',', array_keys(Order::couriers())),
         ]);
 
         $carts = Cart::where('user_id', auth()->id())
@@ -52,7 +55,11 @@ class CheckoutController extends Controller
                         session()->forget(['coupon_code', 'coupon_id']);
                     }
                 }
-                $finalTotal = $total - $discount;
+                // Hitung ongkos kirim berdasarkan kurir yang dipilih
+                $shippingCourier = $request->shipping_courier;
+                $shippingCost = Order::couriers()[$shippingCourier]['cost'] ?? 0;
+
+                $finalTotal = $total - $discount + $shippingCost;
 
                 // Buat order baru
                 $order = Order::create([
@@ -61,6 +68,8 @@ class CheckoutController extends Controller
                     'total_price' => $finalTotal,
                     'status' => 'pending',
                     'shipping_address' => $request->shipping_address,
+                    'shipping_courier' => $shippingCourier,
+                    'shipping_cost' => $shippingCost,
                 ]);
 
                 // Buat order detail & kurangi stok

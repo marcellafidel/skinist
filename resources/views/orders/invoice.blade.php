@@ -347,7 +347,7 @@
                     <div class="total-section">
                         @php
                             $subtotal = $order->details->sum(fn($d) => $d->price * $d->quantity);
-                            $discount = $subtotal - $order->total_price;
+                            $discount = $subtotal - ($order->total_price - $order->shipping_cost);
                         @endphp
                         <div class="total-row">
                             <span>Subtotal</span>
@@ -360,15 +360,14 @@
                         </div>
                         @endif
                         <div class="total-row">
-                            <span>Ongkos Kirim</span>
-                            <span style="color:#34d399;">Gratis</span>
+                            <span>Ongkos Kirim ({{ $order->courier_name }})</span>
+                            <span>Rp {{ number_format($order->shipping_cost, 0, ',', '.') }}</span>
                         </div>
                         <div class="total-final">
                             <span class="total-final-label">Total</span>
                             <span class="total-final-value">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
                         </div>
                     </div>
-                </div>
 
                 {{-- PAYMENT INFO --}}
                 @if($order->status === 'pending')

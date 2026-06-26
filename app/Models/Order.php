@@ -12,9 +12,28 @@ class Order extends Model
         'total_price',
         'status',
         'shipping_address',
+        'shipping_courier',
+        'shipping_cost',
         'tracking_number',
         'payment_proof',
     ];
+
+    /**
+     * Daftar kurir yang tersedia beserta nama tampilan, estimasi, dan tarifnya.
+     */
+    public static function couriers(): array
+    {
+        return [
+            'jne' => ['name' => 'JNE Reguler', 'eta' => '3-4 hari', 'cost' => 15000],
+            'jnt' => ['name' => 'J&T Express', 'eta' => '2-3 hari', 'cost' => 13000],
+            'sicepat' => ['name' => 'SiCepat Reguler', 'eta' => '2-4 hari', 'cost' => 12000],
+        ];
+    }
+
+    public function getCourierNameAttribute(): string
+    {
+        return self::couriers()[$this->shipping_courier]['name'] ?? '-';
+    }
 
     public function user()
     {

@@ -95,6 +95,21 @@
         }
         .btn-coupon:hover { background: #5BB8F5; color: white; }
 
+        /* COURIER OPTIONS */
+        .courier-option {
+            display: flex; align-items: center; justify-content: space-between;
+            border: 1.5px solid rgba(91,184,245,0.15); border-radius: 12px;
+            padding: 12px 16px; margin-bottom: 10px; cursor: pointer;
+            transition: all 0.2s ease; background: #F0F7FF;
+        }
+        .courier-option:hover { border-color: #5BB8F5; }
+        .courier-option.selected { border-color: #5BB8F5; background: rgba(91,184,245,0.08); }
+        .courier-option input[type="radio"] { accent-color: #1A3A5C; margin-right: 12px; }
+        .courier-info { display: flex; align-items: center; }
+        .courier-name { font-size: 0.85rem; font-weight: 500; color: #1A3A5C; }
+        .courier-eta { font-size: 0.72rem; color: #5A7FA0; margin-top: 2px; }
+        .courier-cost { font-size: 0.85rem; font-weight: 600; color: #5BB8F5; }
+
         /* BTN SUBMIT */
         .btn-submit {
             width: 100%; background: #1A3A5C; color: white;
@@ -251,6 +266,28 @@
                             @enderror
                         </div>
 
+                        <div class="input-group">
+                            <label class="input-label">Pilih Kurir</label>
+                            @foreach($couriers as $key => $courier)
+                            <label class="courier-option {{ $loop->first ? 'selected' : '' }}" id="courier-label-{{ $key }}">
+                                <div class="courier-info">
+                                    <input type="radio" name="shipping_courier" value="{{ $key }}"
+                                        data-cost="{{ $courier['cost'] }}"
+                                        {{ $loop->first ? 'checked' : '' }}
+                                        onchange="updateShipping(this)">
+                                    <div>
+                                        <p class="courier-name">{{ $courier['name'] }}</p>
+                                        <p class="courier-eta">Estimasi {{ $courier['eta'] }}</p>
+                                    </div>
+                                </div>
+                                <span class="courier-cost">Rp {{ number_format($courier['cost'], 0, ',', '.') }}</span>
+                            </label>
+                            @endforeach
+                            @error('shipping_courier')
+                                <p class="error-msg">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <button type="submit" class="btn-submit">
                             Buat Pesanan →
                         </button>
@@ -318,7 +355,8 @@
                         $coupon = \App\Models\Coupon::find(session('coupon_id'));
                         if($coupon) $discount = $coupon->calculateDiscount($subtotal);
                     }
-                    $finalTotal = $subtotal - $discount;
+                    $defaultShippingCost = array_values($couriers)[0]['cost'] ?? 0;
+                    $finalTotal = $subtotal - $discount + $defaultShippingCost;
                 @endphp
                 <div class="total-card">
                     <div class="total-row">
@@ -333,11 +371,11 @@
                     @endif
                     <div class="total-row">
                         <span>Ongkos Kirim</span>
-                        <span style="color:#BFDFFF;">Gratis</span>
+                        <span id="ongkir-value" style="color:#BFDFFF;">Rp {{ number_format($defaultShippingCost, 0, ',', '.') }}</span>
                     </div>
                     <div class="total-final">
                         <span class="total-final-label">Total Pembayaran</span>
-                        <span class="total-final-value">Rp {{ number_format($finalTotal, 0, ',', '.') }}</span>
+                        <span class="total-final-value" id="total-final-value">Rp {{ number_format($finalTotal, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>
@@ -349,8 +387,24 @@
     <footer style="background:#1A3A5C; padding:24px; text-align:center; margin-top:64px;">
         <p style="font-size:0.75rem; color:rgba(255,255,255,0.3); letter-spacing:0.08em;">© 2025 Skinist — keep the barrier safe, let your flawless skin speak.</p>
     </footer>
-
+    
 <script>
+const subtotalValue = {{ $subtotal }};
+const discountValue = {{ $discount }};
+
+function formatRupiah(num) {
+    return 'Rp ' + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function updateShipping(radio) {
+    document.querySelectorAll('.courier-option').forEach(el => el.classList.remove('selected'));
+    radio.closest('.courier-option').classList.add('selected');
+
+    const shippingCost = parseFloat(radio.dataset.cost);
+    document.getElementById('ongkir-value').textContent = formatRupiah(shippingCost);
+    document.getElementById('total-final-value').textContent = formatRupiah(subtotalValue - discountValue + shippingCost);
+}
+
 function applyCoupon() {
     const code = document.getElementById('coupon_input').value;
     if (!code) return;
