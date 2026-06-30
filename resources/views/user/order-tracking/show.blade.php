@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $order->invoice_number }} — Skinist</title>
+    <title>Checkout — Skinist</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -18,6 +18,123 @@
             position: sticky; top: 0; z-index: 100;
         }
 
+        /* STEPS */
+        .steps {
+            display: flex; align-items: center; gap: 0;
+            font-size: 0.75rem; letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .step {
+            display: flex; align-items: center; gap: 8px;
+            color: #BFDFFF; font-weight: 400;
+        }
+        .step.active { color: #1A3A5C; font-weight: 500; }
+        .step.done { color: #5BB8F5; }
+        .step-num {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: #E3F2FD; color: #5A7FA0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 600;
+        }
+        .step.active .step-num { background: #1A3A5C; color: white; }
+        .step.done .step-num { background: #5BB8F5; color: white; }
+        .step-arrow { color: #BFDFFF; margin: 0 12px; font-size: 0.9rem; }
+
+        /* CARD */
+        .card {
+            background: white; border-radius: 20px;
+            border: 1px solid rgba(91,184,245,0.08);
+            padding: 28px;
+        }
+
+        .card-title {
+            font-size: 0.72rem; letter-spacing: 0.15em;
+            text-transform: uppercase; color: #5A7FA0;
+            font-weight: 500; margin-bottom: 20px;
+        }
+
+        /* INPUT */
+        .input-group { margin-bottom: 16px; }
+        .input-label {
+            font-size: 0.72rem; letter-spacing: 0.1em;
+            text-transform: uppercase; color: #5A7FA0;
+            font-weight: 500; margin-bottom: 7px; display: block;
+        }
+        .input-field {
+            width: 100%; background: #F0F7FF;
+            border: 1.5px solid transparent; border-radius: 12px;
+            padding: 12px 16px; font-size: 0.88rem;
+            color: #1A3A5C; font-family: 'DM Sans', sans-serif;
+            transition: all 0.25s ease;
+        }
+        .input-field:focus { outline: none; border-color: #5BB8F5; background: white; box-shadow: 0 0 0 4px rgba(91,184,245,0.1); }
+        .input-field:disabled { color: #5A7FA0; cursor: not-allowed; }
+        .input-field::placeholder { color: #5A7FA0; opacity: 0.6; }
+
+        textarea.input-field { resize: none; }
+
+        .error-msg { font-size: 0.75rem; color: #e05c5c; margin-top: 6px; }
+
+        /* COUPON */
+        .coupon-active {
+            background: rgba(91,184,245,0.08); border: 1px solid rgba(91,184,245,0.25);
+            border-radius: 12px; padding: 12px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .coupon-active-label { font-size: 0.82rem; color: #1A3A5C; font-weight: 500; }
+        .coupon-remove { font-size: 0.75rem; color: #e05c5c; text-decoration: none; transition: opacity 0.2s; }
+        .coupon-remove:hover { opacity: 0.7; }
+
+        .coupon-input-wrap { display: flex; gap: 10px; }
+        .btn-coupon {
+            background: #E3F2FD; color: #1A3A5C; border: none;
+            padding: 12px 20px; border-radius: 12px;
+            font-size: 0.82rem; font-weight: 500; cursor: pointer;
+            font-family: 'DM Sans', sans-serif; white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .btn-coupon:hover { background: #5BB8F5; color: white; }
+
+        /* COURIER OPTIONS */
+        .courier-option {
+            display: flex; align-items: center; justify-content: space-between;
+            border: 1.5px solid rgba(91,184,245,0.15); border-radius: 12px;
+            padding: 12px 16px; margin-bottom: 10px; cursor: pointer;
+            transition: all 0.2s ease; background: #F0F7FF;
+        }
+        .courier-option:hover { border-color: #5BB8F5; }
+        .courier-option.selected { border-color: #5BB8F5; background: rgba(91,184,245,0.08); }
+        .courier-option input[type="radio"] { accent-color: #1A3A5C; margin-right: 12px; }
+        .courier-info { display: flex; align-items: center; }
+        .courier-name { font-size: 0.85rem; font-weight: 500; color: #1A3A5C; }
+        .courier-eta { font-size: 0.72rem; color: #5A7FA0; margin-top: 2px; }
+        .courier-cost { font-size: 0.85rem; font-weight: 600; color: #5BB8F5; }
+
+        /* PAYMENT OPTIONS */
+        .payment-option {
+            display: flex; align-items: center;
+            border: 1.5px solid rgba(91,184,245,0.15); border-radius: 12px;
+            padding: 12px 16px; margin-bottom: 10px; cursor: pointer;
+            transition: all 0.2s ease; background: #F0F7FF;
+        }
+        .payment-option:hover { border-color: #5BB8F5; }
+        .payment-option.selected { border-color: #5BB8F5; background: rgba(91,184,245,0.08); }
+        .payment-option input[type="radio"] { accent-color: #1A3A5C; margin-right: 12px; }
+        .payment-icon { font-size: 1.1rem; margin-right: 10px; }
+        .payment-name { font-size: 0.85rem; font-weight: 500; color: #1A3A5C; }
+        .payment-detail { font-size: 0.72rem; color: #5A7FA0; margin-top: 2px; }
+
+        /* BTN SUBMIT */
+        .btn-submit {
+            width: 100%; background: #1A3A5C; color: white;
+            border: none; padding: 15px; border-radius: 14px;
+            font-size: 0.88rem; font-weight: 500; cursor: pointer;
+            font-family: 'DM Sans', sans-serif; letter-spacing: 0.05em;
+            transition: all 0.25s ease; margin-top: 8px;
+        }
+        .btn-submit:hover { background: #5BB8F5; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(91,184,245,0.3); }
+
+        /* BACK BTN */
         .btn-back {
             display: inline-flex; align-items: center; gap: 6px;
             font-size: 0.8rem; color: #5A7FA0; text-decoration: none;
@@ -27,361 +144,319 @@
         }
         .btn-back:hover { color: #5BB8F5; border-color: #5BB8F5; background: #E3F2FD; }
 
-        .card {
-            background: white; border-radius: 20px;
-            border: 1px solid rgba(91,184,245,0.08);
-            padding: 28px; margin-bottom: 20px;
+        /* ORDER SUMMARY */
+        .order-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(91,184,245,0.08);
         }
+        .order-item:last-child { border-bottom: none; }
 
-        .card-title {
-            font-size: 0.72rem; letter-spacing: 0.15em;
-            text-transform: uppercase; color: #5A7FA0;
-            margin-bottom: 20px; font-weight: 500;
-        }
-
-        .status-badge {
-            font-size: 0.72rem; font-weight: 600; padding: 6px 16px;
-            border-radius: 50px; white-space: nowrap;
-        }
-
-        /* STEPPER */
-        .stepper {
-            display: flex; align-items: flex-start; justify-content: space-between;
-            padding: 10px 0 6px;
-        }
-        .step {
-            display: flex; flex-direction: column; align-items: center;
-            flex: 1; position: relative;
-        }
-        .step-circle {
-            width: 36px; height: 36px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.85rem; font-weight: 600;
-            background: #E3F2FD; color: #5A7FA0;
-            border: 2px solid #E3F2FD;
-            z-index: 2; transition: all 0.3s ease;
-        }
-        .step.done .step-circle { background: #5BB8F5; color: white; border-color: #5BB8F5; }
-        .step.current .step-circle { background: #1A3A5C; color: white; border-color: #1A3A5C; box-shadow: 0 0 0 4px rgba(26,58,92,0.12); }
-        .step.cancelled .step-circle { background: #e05c5c; color: white; border-color: #e05c5c; }
-
-        .step-line {
-            position: absolute; top: 18px; left: -50%; width: 100%;
-            height: 2px; background: #E3F2FD; z-index: 1;
-        }
-        .step:first-child .step-line { display: none; }
-        .step.done .step-line, .step.current .step-line { background: #5BB8F5; }
-
-        .step-label {
-            font-size: 0.72rem; color: #5A7FA0; margin-top: 10px;
-            text-align: center; max-width: 90px;
-        }
-        .step.done .step-label, .step.current .step-label { color: #1A3A5C; font-weight: 500; }
-
-        /* HISTORY TABLE */
-        .history-row {
-            display: flex; align-items: flex-start; gap: 14px;
-            padding: 14px 0; border-bottom: 1px solid rgba(91,184,245,0.07);
-        }
-        .history-row:last-child { border-bottom: none; }
-        .history-dot {
-            width: 10px; height: 10px; border-radius: 50%;
-            margin-top: 4px; flex-shrink: 0;
-        }
-        .history-status { font-size: 0.85rem; font-weight: 500; color: #1A3A5C; }
-        .history-note { font-size: 0.78rem; color: #5A7FA0; margin-top: 2px; }
-        .history-date { font-size: 0.72rem; color: #5A7FA0; margin-left: auto; white-space: nowrap; flex-shrink: 0; }
-
-        /* PRODUCT ITEM */
-        .item-row {
-            display: flex; align-items: center; gap: 16px;
-            padding: 14px 0; border-bottom: 1px solid rgba(91,184,245,0.07);
-        }
-        .item-row:last-child { border-bottom: none; }
-        .item-img {
-            width: 56px; height: 56px; background: #E3F2FD;
-            border-radius: 12px; display: flex; align-items: center;
-            justify-content: center; overflow: hidden; flex-shrink: 0;
-        }
-        .item-img img { width: 100%; height: 100%; object-fit: contain; }
-        .item-name { font-size: 0.85rem; font-weight: 500; color: #1A3A5C; }
-        .item-meta { font-size: 0.75rem; color: #5A7FA0; margin-top: 2px; }
-
-        .btn-cancel {
-            background: white; color: #e05c5c;
-            border: 1px solid rgba(224,92,92,0.3);
-            padding: 11px 24px; border-radius: 50px;
-            font-size: 0.82rem; font-weight: 500;
-            cursor: pointer; transition: all 0.2s ease;
-        }
-        .btn-cancel:hover { background: rgba(224,92,92,0.06); border-color: #e05c5c; }
-
-        .info-row {
-            display: flex; justify-content: space-between;
-            font-size: 0.85rem; padding: 8px 0;
-            border-bottom: 1px solid rgba(91,184,245,0.07);
-        }
-        .info-row:last-child { border-bottom: none; }
-        .info-label { color: #5A7FA0; }
-        .info-value { color: #1A3A5C; font-weight: 500; text-align: right; }
-
-        .modal-overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(26,58,92,0.4); z-index: 200;
+        .order-img {
+            width: 52px; height: 52px; background: #E3F2FD;
+            border-radius: 12px; display: flex;
             align-items: center; justify-content: center;
+            flex-shrink: 0; overflow: hidden;
         }
-        .modal-overlay.open { display: flex; }
-        .modal-box {
-            background: white; border-radius: 20px; padding: 28px;
-            width: 90%; max-width: 380px;
+        .order-img img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* TOTAL CARD */
+        .total-card {
+            background: linear-gradient(135deg, #1A3A5C 0%, #2563a8 100%);
+            border-radius: 20px; padding: 24px; color: white;
+            margin-top: 16px;
         }
-        .modal-textarea {
-            width: 100%; border: 1.5px solid rgba(91,184,245,0.2);
-            border-radius: 12px; padding: 12px; font-family: 'DM Sans', sans-serif;
-            font-size: 0.85rem; resize: vertical; min-height: 80px;
-            margin: 12px 0 16px;
+        .total-row {
+            display: flex; justify-content: space-between;
+            align-items: center; padding: 8px 0;
+            font-size: 0.85rem; color: rgba(255,255,255,0.65);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        .modal-textarea:focus { outline: none; border-color: #5BB8F5; }
+        .total-row:last-of-type { border-bottom: none; }
+        .total-final {
+            display: flex; justify-content: space-between;
+            align-items: center; padding: 16px 0 0;
+            border-top: 1px solid rgba(255,255,255,0.12);
+            margin-top: 4px;
+        }
+        .total-final-label { font-size: 0.88rem; color: rgba(255,255,255,0.8); font-weight: 500; }
+        .total-final-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem; font-weight: 600; color: white;
+        }
+
+        .alert-error {
+            background: rgba(224,92,92,0.08); border: 1px solid rgba(224,92,92,0.25);
+            color: #c0392b; padding: 12px 16px; border-radius: 12px;
+            margin-bottom: 16px; font-size: 0.85rem;
+        }
 
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-in { animation: fadeInUp 0.5s ease both; }
+        .delay-1 { animation-delay: 0.1s; }
     </style>
 </head>
 <body>
 
+    {{-- NAVBAR --}}
     <nav class="navbar">
         <div style="max-width:1280px; margin:0 auto; padding:0 24px;">
-            <div style="display:flex; align-items:center; gap:32px; padding:14px 0;">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 0;">
                 <a href="/" class="font-display" style="font-size:1.6rem; font-weight:300; font-style:italic; color:#1A3A5C; text-decoration:none; letter-spacing:0.15em;">Skinist</a>
-                <div style="flex:1;"></div>
+
+                {{-- STEPS --}}
+                <div class="steps">
+                    <div class="step done">
+                        <div class="step-num">✓</div>
+                        <span>Keranjang</span>
+                    </div>
+                    <span class="step-arrow">›</span>
+                    <div class="step active">
+                        <div class="step-num">2</div>
+                        <span>Checkout</span>
+                    </div>
+                    <span class="step-arrow">›</span>
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <span>Pembayaran</span>
+                    </div>
+                </div>
+
                 <span style="font-size:0.82rem; color:#5A7FA0;">Hi, {{ auth()->user()->name }}</span>
             </div>
         </div>
     </nav>
 
-    <main style="max-width:760px; margin:0 auto; padding:32px 24px;">
+    <main style="max-width:1100px; margin:0 auto; padding:32px 24px;">
 
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;" class="animate-in">
+        {{-- HEADER --}}
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px;" class="animate-in">
             <div>
-                <p class="font-display" style="font-size:0.95rem; color:#5BB8F5; letter-spacing:0.05em; margin:0 0 4px;">{{ $order->invoice_number }}</p>
-                <h1 class="font-display" style="font-size:1.8rem; font-weight:300; color:#1A3A5C; margin:0;">Detail Pesanan</h1>
+                <h1 class="font-display" style="font-size:2rem; font-weight:300; color:#1A3A5C; margin:0 0 4px;">Checkout</h1>
+                <p style="font-size:0.82rem; color:#5A7FA0;">Lengkapi informasi pengirimanmu</p>
             </div>
-            <div style="display:flex; gap:10px;">
-                <a href="{{ route('orders.invoice', $order->id) }}" class="btn-back">
-                    🧾 Lihat Invoice
-                </a>
-                <a href="{{ route('orders.tracking.index') }}" class="btn-back">
-                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                    Semua Pesanan
-                </a>
-            </div>
-        </div>
+            <a href="{{ route('cart.index') }}" class="btn-back">
+                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Kembali ke Keranjang
+            </a>
         </div>
 
-        @if(session('success'))
-            <div style="background: rgba(91,184,245,0.1); border: 1px solid rgba(91,184,245,0.3); color: #1A3A5C; padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; font-size: 0.85rem;">✓ {{ session('success') }}</div>
-        @endif
         @if(session('error'))
-            <div style="background: rgba(224,92,92,0.08); border: 1px solid rgba(224,92,92,0.25); color: #c0392b; padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; font-size: 0.85rem;">{{ session('error') }}</div>
+            <div class="alert-error animate-in">{{ session('error') }}</div>
         @endif
 
-        {{-- STEPPER --}}
-        <div class="card animate-in">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-                <p class="card-title" style="margin-bottom:0;">Status Pesanan</p>
-                <span class="status-badge" style="background: {{ $order->status_color }}1A; color: {{ $order->status_color }};">
-                    {{ $order->status_label }}
-                </span>
-            </div>
+        <div style="display:grid; grid-template-columns:1fr 380px; gap:24px; align-items:start;">
 
-            @if($order->status === 'cancelled')
-                <div style="text-align:center; padding:30px 0 10px;">
-                    <div style="width:48px; height:48px; border-radius:50%; background:rgba(224,92,92,0.1); color:#e05c5c; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.3rem;">✕</div>
-                    <p style="font-size:0.88rem; color:#1A3A5C; font-weight:500;">Pesanan ini telah dibatalkan</p>
-                </div>
-            @else
-                @php
-                    $steps = [
-                        'pending' => 'Menunggu Pembayaran',
-                        'paid' => 'Dibayar',
-                        'shipped' => 'Dikirim',
-                        'delivered' => 'Diterima',
-                    ];
-                    $statusOrder = array_keys($steps);
-                    $currentIndex = array_search($order->status, $statusOrder);
-                @endphp
-                <div class="stepper" style="margin-top:16px;">
-                    @foreach($steps as $key => $label)
-                        @php
-                            $stepIndex = array_search($key, $statusOrder);
-                            $stateClass = $stepIndex < $currentIndex ? 'done' : ($stepIndex === $currentIndex ? 'current' : '');
-                        @endphp
-                        <div class="step {{ $stateClass }}">
-                            <div class="step-line"></div>
-                            <div class="step-circle">
-                                @if($stateClass === 'done')
-                                    ✓
-                                @else
-                                    {{ $stepIndex + 1 }}
-                                @endif
-                            </div>
-                            <p class="step-label">{{ $label }}</p>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+            {{-- FORM --}}
+            <div class="animate-in">
+                <div class="card" style="margin-bottom:16px;">
+                    <p class="card-title">Informasi Pengiriman</p>
 
-            @if($order->isCancellable())
-                <div style="text-align:center; margin-top:20px;">
-                    <button class="btn-cancel" onclick="document.getElementById('cancelModal').classList.add('open')">Batalkan Pesanan</button>
-                </div>
-            @endif
-        </div>
-
-        {{-- UPLOAD BUKTI PEMBAYARAN --}}
-        @if($order->status === 'pending')
-        <div class="card animate-in">
-            <p class="card-title">Bukti Pembayaran</p>
-            <div style="background: linear-gradient(135deg, #1A3A5C 0%, #2563a8 100%); border-radius:14px; padding:16px 18px; color:white; margin-bottom:16px; display:flex; align-items:center; gap:14px;">
-                <div style="width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">🏦</div>
-                <div>
-                    <p style="font-size:0.85rem; font-weight:600; margin:0 0 2px;">BCA — 1234567890 a/n Skinist Store</p>
-                    <p style="font-size:0.72rem; color:rgba(255,255,255,0.6); margin:0;">Transfer sesuai total pesanan, lalu upload bukti di bawah.</p>
-                </div>
-            </div>
-
-            @if($order->payment_proof)
-                <div style="background: rgba(91,184,245,0.06); border: 1px solid rgba(91,184,245,0.2); border-radius: 14px; padding: 14px 16px;">
-                    <p style="font-size:0.78rem; color:#5A7FA0; margin-bottom:8px; font-weight:500;">✓ Bukti pembayaran sudah diupload — menunggu konfirmasi admin</p>
-                    <img src="{{ asset('storage/' . $order->payment_proof) }}" style="height:80px; border-radius:10px; object-fit:cover;" alt="Bukti Pembayaran">
-                </div>
-            @else
-                <div style="background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.2); border-radius: 14px; padding: 16px;">
-                    <p style="font-size:0.8rem; color:#92400e; font-weight:500; margin-bottom:12px;">⏳ Belum ada bukti pembayaran — upload sekarang untuk konfirmasi</p>
-                    <form action="{{ route('orders.tracking.upload', $order->invoice_number) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('checkout.process') }}" method="POST" id="checkout-form">
                         @csrf
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <label for="payment-proof-file" style="display:inline-flex; align-items:center; gap:6px; background:#E3F2FD; color:#1A3A5C; padding:9px 16px; border-radius:10px; font-size:0.8rem; font-weight:500; cursor:pointer; transition:all 0.2s ease;">
-                                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                                Pilih Gambar
-                            </label>
-                            <input type="file" id="payment-proof-file" name="payment_proof" accept="image/*" required style="display:none;" onchange="document.getElementById('payment-proof-filename').textContent = this.files[0]?.name ?? ''">
-                            <span id="payment-proof-filename" style="font-size:0.75rem; color:#5A7FA0; flex:1;"></span>
-                            <button type="submit" style="background:#1A3A5C; color:white; border:none; padding:9px 20px; border-radius:10px; font-size:0.8rem; font-weight:500; cursor:pointer;">Upload</button>
+
+                        <div class="input-group">
+                            <label class="input-label">Nama Lengkap</label>
+                            <input type="text" value="{{ auth()->user()->name }}" disabled class="input-field">
                         </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Email</label>
+                            <input type="email" value="{{ auth()->user()->email }}" disabled class="input-field">
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Alamat Lengkap</label>
+                            <textarea name="shipping_address" rows="4" required
+                                placeholder="Jl. Contoh No. 123, Kelurahan, Kecamatan, Kota, Kode Pos..."
+                                class="input-field">{{ old('shipping_address') }}</textarea>
+                            @error('shipping_address')
+                                <p class="error-msg">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Pilih Kurir</label>
+                            @foreach($couriers as $key => $courier)
+                            <label class="courier-option {{ $loop->first ? 'selected' : '' }}" id="courier-label-{{ $key }}">
+                                <div class="courier-info">
+                                    <input type="radio" name="shipping_courier" value="{{ $key }}"
+                                        data-cost="{{ $courier['cost'] }}"
+                                        {{ $loop->first ? 'checked' : '' }}
+                                        onchange="updateShipping(this)">
+                                    <div>
+                                        <p class="courier-name">{{ $courier['name'] }}</p>
+                                        <p class="courier-eta">Estimasi {{ $courier['eta'] }}</p>
+                                    </div>
+                                </div>
+                                <span class="courier-cost">Rp {{ number_format($courier['cost'], 0, ',', '.') }}</span>
+                            </label>
+                            @endforeach
+                            @error('shipping_courier')
+                                <p class="error-msg">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Metode Pembayaran</label>
+                            @foreach($paymentMethods as $key => $method)
+                            <label class="payment-option {{ $loop->first ? 'selected' : '' }}" id="payment-label-{{ $key }}">
+                                <input type="radio" name="payment_method" value="{{ $key }}"
+                                    {{ $loop->first ? 'checked' : '' }}
+                                    onchange="updatePaymentMethod(this)">
+                                <span class="payment-icon">{{ $method['icon'] }}</span>
+                                <div>
+                                    <p class="payment-name">{{ $method['name'] }}</p>
+                                    <p class="payment-detail">{{ $method['detail'] }}</p>
+                                </div>
+                            </label>
+                            @endforeach
+                            @error('payment_method')
+                                <p class="error-msg">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            Buat Pesanan →
+                        </button>
                     </form>
                 </div>
-            @endif
-        </div>
-        @endif
 
-        {{-- INFO PESANAN --}}
-        <div class="card animate-in">
-            <p class="card-title">Informasi Pesanan</p>
-            <div class="info-row">
-                <span class="info-label">Tanggal Pesan</span>
-                <span class="info-value">{{ $order->created_at->format('d M Y, H:i') }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Alamat Pengiriman</span>
-                <span class="info-value">{{ $order->shipping_address }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Kurir</span>
-                <span class="info-value">{{ $order->courier_name }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Ongkos Kirim</span>
-                <span class="info-value">Rp {{ number_format($order->shipping_cost, 0, ',', '.') }}</span>
-            </div>
-            @if($order->tracking_number)
-            <div class="info-row">
-                <span class="info-label">No. Resi</span>
-                <span class="info-value">{{ $order->tracking_number }}</span>
-            </div>
-            @endif
-            <div class="info-row">
-                <span class="info-label">Total Pembayaran</span>
-                <span class="info-value" style="color:#5BB8F5; font-family:'Cormorant Garamond',serif; font-size:1.1rem;">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
-            </div>
-        </div>
-
-        {{-- PRODUK --}}
-        <div class="card animate-in">
-            <p class="card-title">Produk Dipesan</p>
-            @foreach($order->details as $detail)
-            <div class="item-row">
-                <div class="item-img">
-                    @if($detail->variant->product->thumbnail)
-                        <img src="{{ asset('storage/' . $detail->variant->product->thumbnail) }}" alt="">
+                {{-- KUPON --}}
+                <div class="card">
+                    <p class="card-title">Kode Kupon</p>
+                    @if(session('coupon_code'))
+                        <div class="coupon-active">
+                            <span class="coupon-active-label">✓ Kupon <strong>{{ session('coupon_code') }}</strong> aktif</span>
+                            <a href="{{ route('coupon.remove') }}" class="coupon-remove">Hapus</a>
+                        </div>
                     @else
-                        <span style="font-size:1.5rem;">🧴</span>
+                        @if(session('coupon_error'))
+                            <p style="font-size:0.78rem; color:#e05c5c; margin-bottom:10px;">{{ session('coupon_error') }}</p>
+                        @endif
+                        @if(session('coupon_success'))
+                            <p style="font-size:0.78rem; color:#5BB8F5; margin-bottom:10px;">{{ session('coupon_success') }}</p>
+                        @endif
+                        <div class="coupon-input-wrap">
+                            <input type="text" id="coupon_input" placeholder="Masukkan kode kupon..." class="input-field" style="margin:0;">
+                            <button type="button" onclick="applyCoupon()" class="btn-coupon">Pakai</button>
+                        </div>
                     @endif
-                </div>
-                <div style="flex:1;">
-                    <p class="item-name">{{ $detail->variant->product->name ?? 'Produk' }}</p>
-                    @if($detail->variant->shade_name || $detail->variant->size)
-                    <p class="item-meta" style="margin-bottom:2px;">
-                        {{ $detail->variant->shade_name }}
-                        @if($detail->variant->shade_name && $detail->variant->size) — @endif
-                        {{ $detail->variant->size }}
-                    </p>
-                    @endif
-                    <p class="item-meta">{{ $detail->quantity }}x — Rp {{ number_format($detail->price, 0, ',', '.') }}</p>
                 </div>
             </div>
-            @endforeach
-        </div>
 
-        {{-- RIWAYAT STATUS --}}
-        <div class="card animate-in">
-            <p class="card-title">Riwayat Status</p>
-            @forelse($order->statusHistories as $history)
-            <div class="history-row">
-                <span class="history-dot" style="background:{{ $history->status_color }};"></span>
-                <div style="flex:1;">
-                    <p class="history-status">{{ $history->status_label }}</p>
-                    @if($history->note)
-                    <p class="history-note">{{ $history->note }}</p>
-                    @endif
+            {{-- SUMMARY --}}
+            <div class="animate-in delay-1">
+                <div class="card">
+                    <p class="card-title">Ringkasan Pesanan</p>
+                    @foreach($carts as $cart)
+                    <div class="order-item">
+                        <div class="order-img">
+                            @if($cart->variant->product->thumbnail)
+                                <img src="{{ asset('storage/' . $cart->variant->product->thumbnail) }}" alt="">
+                            @else
+                                <span style="font-size:1.5rem;">🧴</span>
+                            @endif
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <p style="font-size:0.85rem; font-weight:500; color:#1A3A5C; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $cart->variant->product->name }}</p>
+                            <div style="display:flex; align-items:center; gap:5px; margin-top:3px;">
+                                @if($cart->variant->hex_color)
+                                <span style="width:10px; height:10px; border-radius:50%; background:{{ $cart->variant->hex_color }}; border:1px solid rgba(0,0,0,0.1); display:inline-block;"></span>
+                                @endif
+                                <span style="font-size:0.75rem; color:#5A7FA0;">{{ $cart->variant->shade_name }} @if($cart->variant->size) · {{ $cart->variant->size }} @endif</span>
+                            </div>
+                        </div>
+                        <div style="text-align:right; flex-shrink:0;">
+                            <p style="font-size:0.85rem; font-weight:600; color:#5BB8F5;">Rp {{ number_format($cart->variant->price * $cart->quantity, 0, ',', '.') }}</p>
+                            <p style="font-size:0.72rem; color:#5A7FA0;">×{{ $cart->quantity }}</p>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
-                <span class="history-date">{{ $history->created_at->format('d M Y, H:i') }}</span>
+
+                {{-- TOTAL --}}
+                @php
+                    $subtotal = $carts->sum(fn($c) => $c->variant->price * $c->quantity);
+                    $discount = 0;
+                    if(session('coupon_id')) {
+                        $coupon = \App\Models\Coupon::find(session('coupon_id'));
+                        if($coupon) $discount = $coupon->calculateDiscount($subtotal);
+                    }
+                    $defaultShippingCost = array_values($couriers)[0]['cost'] ?? 0;
+                    $finalTotal = $subtotal - $discount + $defaultShippingCost;
+                @endphp
+                <div class="total-card">
+                    <div class="total-row">
+                        <span>Subtotal</span>
+                        <span style="color:rgba(255,255,255,0.85);">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                    </div>
+                    @if($discount > 0)
+                    <div class="total-row">
+                        <span>Diskon Kupon</span>
+                        <span style="color:#BFDFFF;">− Rp {{ number_format($discount, 0, ',', '.') }}</span>
+                    </div>
+                    @endif
+                    <div class="total-row">
+                        <span>Ongkos Kirim</span>
+                        <span id="ongkir-value" style="color:#BFDFFF;">Rp {{ number_format($defaultShippingCost, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="total-final">
+                        <span class="total-final-label">Total Pembayaran</span>
+                        <span class="total-final-value" id="total-final-value">Rp {{ number_format($finalTotal, 0, ',', '.') }}</span>
+                    </div>
+                </div>
             </div>
-            @empty
-            <p style="font-size:0.82rem; color:#5A7FA0;">Belum ada riwayat status.</p>
-            @endforelse
+
         </div>
 
     </main>
 
-    {{-- MODAL CANCEL --}}
-    @if($order->isCancellable())
-    <div class="modal-overlay" id="cancelModal">
-        <div class="modal-box">
-            <h3 class="font-display" style="font-size:1.3rem; font-weight:400; color:#1A3A5C; margin:0 0 4px;">Batalkan Pesanan?</h3>
-            <p style="font-size:0.82rem; color:#5A7FA0; margin:0;">Beri tahu kami alasan pembatalan.</p>
-            <form method="POST" action="{{ route('orders.tracking.cancel', $order->invoice_number) }}">
-                @csrf
-                <textarea name="cancel_reason" class="modal-textarea" placeholder="Contoh: Salah pilih produk, ingin ganti alamat, dll." required></textarea>
-                <div style="display:flex; gap:10px;">
-                    <button type="button" onclick="document.getElementById('cancelModal').classList.remove('open')" style="flex:1; background:white; border:1px solid rgba(91,184,245,0.25); color:#5A7FA0; padding:11px; border-radius:50px; font-size:0.82rem; cursor:pointer;">Batal</button>
-                    <button type="submit" style="flex:1; background:#e05c5c; border:none; color:white; padding:11px; border-radius:50px; font-size:0.82rem; cursor:pointer;">Ya, Batalkan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    @endif
-
     <footer style="background:#1A3A5C; padding:24px; text-align:center; margin-top:64px;">
         <p style="font-size:0.75rem; color:rgba(255,255,255,0.3); letter-spacing:0.08em;">© 2025 Skinist — keep the barrier safe, let your flawless skin speak.</p>
     </footer>
+    
+<script>
+const subtotalValue = {{ $subtotal }};
+const discountValue = {{ $discount }};
+
+function formatRupiah(num) {
+    return 'Rp ' + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function updateShipping(radio) {
+    document.querySelectorAll('.courier-option').forEach(el => el.classList.remove('selected'));
+    radio.closest('.courier-option').classList.add('selected');
+
+    const shippingCost = parseFloat(radio.dataset.cost);
+    document.getElementById('ongkir-value').textContent = formatRupiah(shippingCost);
+    document.getElementById('total-final-value').textContent = formatRupiah(subtotalValue - discountValue + shippingCost);
+}
+
+function updatePaymentMethod(radio) {
+    document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+    radio.closest('.payment-option').classList.add('selected');
+}
+
+function applyCoupon() {
+    const code = document.getElementById('coupon_input').value;
+    if (!code) return;
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route('coupon.apply') }}';
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden'; csrf.name = '_token'; csrf.value = '{{ csrf_token() }}';
+    const input = document.createElement('input');
+    input.type = 'hidden'; input.name = 'coupon_code'; input.value = code;
+    form.appendChild(csrf); form.appendChild(input);
+    document.body.appendChild(form); form.submit();
+}
+</script>
 
 </body>
 </html>

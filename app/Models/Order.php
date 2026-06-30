@@ -16,6 +16,7 @@ class Order extends Model
         'shipping_cost',
         'tracking_number',
         'payment_proof',
+        'payment_method',
     ];
 
     /**
@@ -33,6 +34,55 @@ class Order extends Model
     public function getCourierNameAttribute(): string
     {
         return self::couriers()[$this->shipping_courier]['name'] ?? '-';
+    }
+
+    /**
+     * Daftar metode pembayaran yang tersedia beserta detail tujuannya.
+     */
+    public static function paymentMethods(): array
+    {
+        return [
+            'bca' => [
+                'name' => 'Transfer Bank BCA',
+                'icon' => '🏦',
+                'detail' => 'BCA — 1234567890 a/n Skinist Store',
+            ],
+            'bni' => [
+                'name' => 'Transfer Bank BNI',
+                'icon' => '🏦',
+                'detail' => 'BNI — 0987654321 a/n Skinist Store',
+            ],
+            'bri' => [
+                'name' => 'Transfer Bank BRI',
+                'icon' => '🏦',
+                'detail' => 'BRI — 5566778899 a/n Skinist Store',
+            ],
+            'mandiri' => [
+                'name' => 'Transfer Bank Mandiri',
+                'icon' => '🏦',
+                'detail' => 'Mandiri — 1122334455 a/n Skinist Store',
+            ],
+            'ewallet' => [
+                'name' => 'E-Wallet (DANA/OVO/GoPay)',
+                'icon' => '📱',
+                'detail' => 'DANA/OVO/GoPay — 081234567890 a/n Skinist Store',
+            ],
+        ];
+    }
+
+    public function getPaymentMethodNameAttribute(): string
+    {
+        return self::paymentMethods()[$this->payment_method]['name'] ?? '-';
+    }
+
+    public function getPaymentMethodDetailAttribute(): string
+    {
+        return self::paymentMethods()[$this->payment_method]['detail'] ?? '-';
+    }
+
+    public function getPaymentMethodIconAttribute(): string
+    {
+        return self::paymentMethods()[$this->payment_method]['icon'] ?? '🏦';
     }
 
     public function user()

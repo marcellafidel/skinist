@@ -110,17 +110,6 @@
             <div style="background: rgba(224,92,92,0.08); border: 1px solid rgba(224,92,92,0.25); color: #c0392b; padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; font-size: 0.85rem;">{{ session('error') }}</div>
         @endif
 
-        @if($orders->where('status', 'pending')->count() > 0)
-        <div style="background: linear-gradient(135deg, #1A3A5C 0%, #2563a8 100%); border-radius:20px; padding:20px 24px; margin-bottom:24px; color:white; display:flex; align-items:center; gap:20px;" class="animate-in">
-            <div style="width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">🏦</div>
-            <div>
-                <p style="font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:4px;">Info Pembayaran</p>
-                <p style="font-size:1rem; font-weight:600; color:white; margin:4px 0;">BCA — 1234567890 a/n Skinist Store</p>
-                <p style="font-size:0.75rem; color:rgba(255,255,255,0.55);">Transfer sesuai total pesanan, lalu upload bukti di halaman detail pesanan.</p>
-            </div>
-        </div>
-        @endif
-
         @if($orders->isEmpty())
             <div class="empty-state animate-in">
                 <div style="font-size:4rem; margin-bottom:16px; opacity:0.3;">📦</div>

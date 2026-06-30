@@ -104,6 +104,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/variants/{id}', [\App\Http\Controllers\Admin\ProductController::class, 'updateVariant'])->name('admin.variants.update');
     Route::post('/admin/products/{id}/variants', [\App\Http\Controllers\Admin\ProductController::class, 'storeVariant'])->name('admin.variants.store');
     Route::get('/admin/laporan-keuangan', [AdminController::class, 'laporanKeuangan'])->name('admin.laporan');
+    Route::get('/admin/laporan-keuangan/export', [AdminController::class, 'exportLaporanKeuangan'])->name('admin.laporan.export');
     Route::get('/admin/histori-stok', [AdminController::class, 'historiStok'])->name('admin.stok');
     Route::post('/admin/stok/tambah', [AdminController::class, 'tambahStok'])->name('admin.stok.tambah');
     Route::get('/admin/orders/{id}/invoice', [\App\Http\Controllers\Admin\OrderController::class, 'invoice'])->name('admin.invoice');

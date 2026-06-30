@@ -110,6 +110,20 @@
         .courier-eta { font-size: 0.72rem; color: #5A7FA0; margin-top: 2px; }
         .courier-cost { font-size: 0.85rem; font-weight: 600; color: #5BB8F5; }
 
+        /* PAYMENT OPTIONS */
+        .payment-option {
+            display: flex; align-items: center;
+            border: 1.5px solid rgba(91,184,245,0.15); border-radius: 12px;
+            padding: 12px 16px; margin-bottom: 10px; cursor: pointer;
+            transition: all 0.2s ease; background: #F0F7FF;
+        }
+        .payment-option:hover { border-color: #5BB8F5; }
+        .payment-option.selected { border-color: #5BB8F5; background: rgba(91,184,245,0.08); }
+        .payment-option input[type="radio"] { accent-color: #1A3A5C; margin-right: 12px; }
+        .payment-icon { font-size: 1.1rem; margin-right: 10px; }
+        .payment-name { font-size: 0.85rem; font-weight: 500; color: #1A3A5C; }
+        .payment-detail { font-size: 0.72rem; color: #5A7FA0; margin-top: 2px; }
+
         /* BTN SUBMIT */
         .btn-submit {
             width: 100%; background: #1A3A5C; color: white;
@@ -288,6 +302,25 @@
                             @enderror
                         </div>
 
+                        <div class="input-group">
+                            <label class="input-label">Metode Pembayaran</label>
+                            @foreach($paymentMethods as $key => $method)
+                            <label class="payment-option {{ $loop->first ? 'selected' : '' }}" id="payment-label-{{ $key }}">
+                                <input type="radio" name="payment_method" value="{{ $key }}"
+                                    {{ $loop->first ? 'checked' : '' }}
+                                    onchange="updatePaymentMethod(this)">
+                                <span class="payment-icon">{{ $method['icon'] }}</span>
+                                <div>
+                                    <p class="payment-name">{{ $method['name'] }}</p>
+                                    <p class="payment-detail">{{ $method['detail'] }}</p>
+                                </div>
+                            </label>
+                            @endforeach
+                            @error('payment_method')
+                                <p class="error-msg">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <button type="submit" class="btn-submit">
                             Buat Pesanan →
                         </button>
@@ -403,6 +436,11 @@ function updateShipping(radio) {
     const shippingCost = parseFloat(radio.dataset.cost);
     document.getElementById('ongkir-value').textContent = formatRupiah(shippingCost);
     document.getElementById('total-final-value').textContent = formatRupiah(subtotalValue - discountValue + shippingCost);
+}
+
+function updatePaymentMethod(radio) {
+    document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+    radio.closest('.payment-option').classList.add('selected');
 }
 
 function applyCoupon() {

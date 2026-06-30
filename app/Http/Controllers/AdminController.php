@@ -108,20 +108,66 @@ class AdminController extends Controller
         return back()->with('success', 'Kupon berhasil dihapus!');
     }
 
-public function laporanKeuangan()
+public function laporanKeuangan(Request $request)
 {
     $this->checkAdmin();
-    $orders = Order::with(['user', 'details'])
-                ->whereIn('status', ['paid', 'shipped', 'delivered'])
-                ->latest()
-                ->get();
+
+    $startDate = $request->input('start_date');
+    $endDate = $request->input('end_date');
+
+    $query = Order::with(['user', 'details'])
+                ->whereIn('status', ['paid', 'shipped', 'delivered']);
+
+    if ($startDate) {
+        $query->whereDate('created_at', '>=', $startDate);
+    }
+    if ($endDate) {
+        $query->whereDate('created_at', '<=', $endDate);
+    }
+
+    $orders = $query->latest()->get();
 
     $totalPendapatan = $orders->sum('total_price');
     $totalOrder = $orders->count();
     $pendapatanPerBulan = $orders->groupBy(fn($o) => $o->created_at->format('Y-m'))
                 ->map(fn($group) => $group->sum('total_price'));
 
-    return view('admin.laporan-keuangan', compact('orders', 'totalPendapatan', 'totalOrder', 'pendapatanPerBulan'));
+    return view('admin.laporan-keuangan', compact('orders', 'totalPendapatan', 'totalOrder', 'pendapatanPerBulan', 'startDate', 'endDate'));
+}
+
+public function exportLaporanKeuangan(Request $request)
+{
+    $this->checkAdmin();
+
+    $startDate = $request->input('start_date');
+    $endDate = $request->input('end_date');
+
+    $query = Order::with(['user', 'details'])
+                ->whereIn('status', ['paid', 'shipped', 'delivered']);
+
+    if ($startDate) {
+        $query->whereDate('created_at', '>=', $startDate);
+    }
+    if ($endDate) {
+        $query->whereDate('created_at', '<=', $endDate);
+    }
+
+    $orders = $query->latest()->get();
+
+    $totalPendapatan = $orders->sum('total_price');
+    $totalOrder = $orders->count();
+    $pendapatanPerBulan = $orders->groupBy(fn($o) => $o->created_at->format('Y-m'))
+                ->map(fn($group) => $group->sum('total_price'));
+
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.laporan-keuangan-pdf', compact('orders', 'totalPendapatan', 'totalOrder', 'pendapatanPerBulan', 'startDate', 'endDate'));
+
+    $filename = 'laporan-keuangan';
+    if ($startDate || $endDate) {
+        $filename .= '-' . ($startDate ?: 'awal') . '_sd_' . ($endDate ?: 'sekarang');
+    }
+    $filename .= '.pdf';
+
+    return $pdf->download($filename);
 }
 
 public function historiStok()

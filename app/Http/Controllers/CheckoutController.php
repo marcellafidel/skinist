@@ -18,8 +18,9 @@ class CheckoutController extends Controller
                      ->get();
 
         $couriers = Order::couriers();
+        $paymentMethods = Order::paymentMethods();
 
-        return view('checkout.index', compact('carts', 'couriers'));
+        return view('checkout.index', compact('carts', 'couriers', 'paymentMethods'));
     }
 
     public function processCheckout(Request $request)
@@ -27,6 +28,7 @@ class CheckoutController extends Controller
         $request->validate([
             'shipping_address' => 'required|string',
             'shipping_courier' => 'required|in:' . implode(',', array_keys(Order::couriers())),
+            'payment_method' => 'required|in:' . implode(',', array_keys(Order::paymentMethods())),
         ]);
 
         $carts = Cart::where('user_id', auth()->id())
@@ -70,6 +72,7 @@ class CheckoutController extends Controller
                     'shipping_address' => $request->shipping_address,
                     'shipping_courier' => $shippingCourier,
                     'shipping_cost' => $shippingCost,
+                    'payment_method' => $request->payment_method,
                 ]);
 
                 // Buat order detail & kurangi stok
